@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from src.conf.config import settings
 from src.database.connect import get_db
-from src.routes import auth
+from src.routes import auth, photos, tags
 
 app = FastAPI()
 
@@ -46,9 +46,9 @@ def healthchecker(db: Session = Depends(get_db)):
 
 
 # app.include_router(auth.router, prefix='/api')
-# app.include_router(contacts.router, prefix='/api')
-# app.include_router(users.router, prefix='/api')
 app.include_router(auth.router, prefix='/api')
+app.include_router(tags.router, prefix='/api')
+app.include_router(photos.router, prefix='/api')
 
 if __name__ == '__main__':
     uvicorn.run(app="main:app", reload=True)

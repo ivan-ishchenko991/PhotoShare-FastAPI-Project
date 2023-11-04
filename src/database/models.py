@@ -44,7 +44,7 @@ class Photo(Base):
     # Зовнішній ключ для зв'язку з користувачем
     user_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), default=None)
     # Зв'язок з користувачем
-    user = relationship("User", back_populates="photos")
+    user = relationship("User", backref="photos")
     image_transform = Column(String(200), nullable=True)
     qr_transform = Column(String(200), nullable=True)
     public_id = Column(String(100), nullable=True)

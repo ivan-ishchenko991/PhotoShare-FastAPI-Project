@@ -12,6 +12,7 @@ from src.repository import users as repository_users
 import redis
 from src.conf.config import settings
 
+
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     SECRET_KEY = settings.secret_key_jwt
@@ -24,14 +25,14 @@ class Auth:
 
     def get_password_hash(self, password: str):
         return self.pwd_context.hash(password)
-    
+
     def create_email_token(self, data: dict):
         to_encode = data.copy()
         expire = datetime.utcnow() + timedelta(days=7)
         to_encode.update({"iat": datetime.utcnow(), "exp": expire})
         token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return token
-    
+
     async def get_email_from_token(self, token: str):
         try:
             payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
@@ -40,7 +41,7 @@ class Auth:
         except JWTError as e:
             print(e)
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                          detail="Invalid token for email verification")
+                                detail="Invalid token for email verification")
 
     async def create_access_token(self, data: dict, expires_delta: Optional[float] = None):
         to_encode = data.copy()
@@ -51,7 +52,6 @@ class Auth:
         to_encode.update({"iat": datetime.utcnow(), "exp": expire, "scope": "access_token"})
         encoded_access_token = jwt.encode(to_encode, self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_access_token
-
 
     async def create_refresh_token(self, data: dict, expires_delta: Optional[float] = None):
         to_encode = data.copy()
@@ -95,8 +95,8 @@ class Auth:
             user = await repository_users.get_user_by_email(email, db)
             if user is None:
                 raise credentials_exception
-            self.r.set(f"user:{email}", pickle.dumps(user))
-            self.r.expire(f"user:{email}", 900)
+            self.r.set(f"user:{email}", pickle.dumps(user))  # noqa
+            self.r.expire(f"user:{email}", 900)  # noqa
         else:
             user = pickle.loads(user)
         return user
