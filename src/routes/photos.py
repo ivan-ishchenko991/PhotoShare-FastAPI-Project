@@ -3,21 +3,17 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form, File, Uploa
 from sqlalchemy.orm import Session
 from fastapi.security import HTTPBearer
 
-
 from src.schemas import (
     PhotoCreate,
     PhotoUpdate,
     PhotoResponse,
     PhotoListResponse,
-    TagResponse, PhotoTransform, TransformBodyModel, PhotoLinkTransform
+    TagResponse
 )
-# from src.services.auth import auth_service
+from src.services.auth import auth_service
 from src.database.connect import get_db
 from src.database.models import Photo, User
 from src.repository import photos as repository_photos
-
-# from src.services.photos import transform_image, create_link_transform_image
-# from src.services.auth import auth_service
 
 router = APIRouter(tags=["photos"])
 security = HTTPBearer()

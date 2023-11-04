@@ -1,12 +1,8 @@
-from sqlalchemy import Column, Integer, String, Boolean, func, Table,Text, ForeignKey
-from sqlalchemy.orm import relationship
-from sqlalchemy.sql.sqltypes import DateTime
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, Boolean, func, Table, Text, ForeignKey
 import enum
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql.sqltypes import Enum
-
 
 Base = declarative_base()
 
@@ -25,17 +21,16 @@ class User(Base):
     password = Column(String(255), nullable=False)
     created_at = Column('crated_at', DateTime, default=func.now())
     avatar = Column(String(255), nullable=True)
-    roles = Column(Enum("User", "Moderator", "Administrator",name="user_roles"), default="User")
+    roles = Column(Enum("User", "Moderator", "Administrator", name="user_roles"), default="User")
     refresh_token = Column(String(255), nullable=True)
     confirmed_email = Column(Boolean, default=False)
 
 
-
-photo_2_tag = Table("photo_2_tag", Base.metadata,
-                    Column('id', Integer, primary_key=True),
-                    Column('photo_id', Integer, ForeignKey('photos.id', ondelete='CASCADE')),
-                    Column('tag_id', Integer, ForeignKey('tags.id', ondelete='CASCADE')),
-                    )
+photo_tag = Table("photo_2_tag", Base.metadata,
+                  Column('id', Integer, primary_key=True),
+                  Column('photo_id', Integer, ForeignKey('photos.id', ondelete='CASCADE')),
+                  Column('tag_id', Integer, ForeignKey('tags.id', ondelete='CASCADE')),
+                  )
 
 
 class Photo(Base):
@@ -43,7 +38,7 @@ class Photo(Base):
     id = Column(Integer, primary_key=True)
     image_url = Column(String(300))
     description = Column(String(500), nullable=True)
-    tags = relationship('Tag', secondary=photo_2_tag, backref='photos')
+    tags = relationship('Tag', secondary=photo_tag, backref='photos')
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now())
     # Зовнішній ключ для зв'язку з користувачем
@@ -55,3 +50,13 @@ class Photo(Base):
     public_id = Column(String(100), nullable=True)
     comment = relationship('Comment', backref="photos", cascade="all, delete-orphan")
 
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(100), nullable=False, unique=True)
+    created_at = Column(DateTime, default=func.now())
+    user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
+
+    user = relationship('User', backref="tags")

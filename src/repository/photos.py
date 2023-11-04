@@ -6,7 +6,7 @@ from cloudinary.uploader import destroy
 from sqlalchemy.orm import Session
 from fastapi.exceptions import HTTPException
 
-from src.database.models import Photo, User  # , Tag
+from src.database.models import Photo, User, Tag
 from src.conf.config import settings
 from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse
 
@@ -27,46 +27,46 @@ def get_public_id_from_image_url(image_url: str) -> str:
     return public_id
 
 
-# def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User, db: Session) -> PhotoResponse:
-#     init_cloudinary()
-#     # Створюю унікальний public_id на основі поточного часу
-#     timestamp = datetime.now().timestamp()
-#     public_id = f"{current_user.email}_{current_user.id}_{int(timestamp)}"
-#
-#     image_bytes = image.file.read()
-#     upload_result = upload(image_bytes, public_id=public_id, overwrite=True)
-#     image_url = upload_result['secure_url']
-#     photo_data = photo.dict()
-#     photo_data["image_url"] = image_url
-#     photo_data["user_id"] = current_user.id
-#     photo_data["public_id"] = public_id
-#
-#     tag_titles = [tag.strip() for tag in photo_data['tags'][0].split(",") if tag.strip()]
-#     if len(tag_titles) > 5:
-#         raise HTTPException(status_code=400, detail="Too many tags provided")
-#     tag_objects = []
-#     for tag_name in tag_titles:
-#         tag = db.query(Tag).filter(Tag.title == tag_name).first()
-#         if not tag:
-#             tag = Tag(title=tag_name, user_id=current_user.id)
-#             db.add(tag)
-#             db.commit()
-#             db.refresh(tag)
-#         tag_objects.append(tag)
-#     photo_data['tags'] = tag_objects
-#     db_photo = Photo(**photo_data)
-#     db_photo.tags = tag_objects
-#
-#     db.add(db_photo)
-#     db.commit()
-#     db.refresh(db_photo)
-#
-#     photo_response_data = db_photo.__dict__
-#     photo_response_data["tags"] = [TagResponse(id=tag.id, title=tag.title, created_at=tag.created_at) for tag in
-#                                    db_photo.tags]
-#     photo_response_data.pop("_sa_instance_state", None)
-#
-#     return PhotoResponse(**photo_response_data)
+def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User, db: Session) -> PhotoResponse:
+    init_cloudinary()
+    # Створюю унікальний public_id на основі поточного часу
+    timestamp = datetime.now().timestamp()
+    public_id = f"{current_user.email}_{current_user.id}_{int(timestamp)}"
+
+    image_bytes = image.file.read()
+    upload_result = upload(image_bytes, public_id=public_id, overwrite=True)
+    image_url = upload_result['secure_url']
+    photo_data = photo.dict()
+    photo_data["image_url"] = image_url
+    photo_data["user_id"] = current_user.id
+    photo_data["public_id"] = public_id
+
+    tag_titles = [tag.strip() for tag in photo_data['tags'][0].split(",") if tag.strip()]
+    if len(tag_titles) > 5:
+        raise HTTPException(status_code=400, detail="Too many tags provided")
+    tag_objects = []
+    for tag_name in tag_titles:
+        tag = db.query(Tag).filter(Tag.title == tag_name).first()
+        if not tag:
+            tag = Tag(title=tag_name, user_id=current_user.id)
+            db.add(tag)
+            db.commit()
+            db.refresh(tag)
+        tag_objects.append(tag)
+    photo_data['tags'] = tag_objects
+    db_photo = Photo(**photo_data)
+    db_photo.tags = tag_objects
+
+    db.add(db_photo)
+    db.commit()
+    db.refresh(db_photo)
+
+    photo_response_data = db_photo.__dict__
+    photo_response_data["tags"] = [TagResponse(id=tag.id, title=tag.title, created_at=tag.created_at) for tag in
+                                   db_photo.tags]
+    photo_response_data.pop("_sa_instance_state", None)
+
+    return PhotoResponse(**photo_response_data)
 
 
 def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> PhotoListResponse:
@@ -111,30 +111,30 @@ def get_user_photo_by_id(photo_id: int, db: Session) -> Photo:
     return photo
 
 
-# def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: User, db: Session) -> PhotoResponse:
-#     if updated_photo.description is not None:
-#         photo.description = updated_photo.description
-#
-#     if updated_photo.tags:
-#         tag_objects = []
-#         for tag_name in updated_photo.tags:
-#             tag = db.query(Tag).filter(Tag.title == tag_name, ).first()
-#             if not tag:
-#                 tag = Tag(title=tag_name, user_id=current_user.id)
-#                 db.add(tag)
-#             tag_objects.append(tag)
-#         photo.tags = tag_objects
-#
-#     photo.updated_at = datetime.utcnow()  # Оновлення поля updated_at
-#     db.commit()
-#     return PhotoResponse(
-#         id=photo.id,
-#         image_url=photo.image_url,
-#         description=photo.description,
-#         created_at=photo.created_at,
-#         updated_at=photo.updated_at,
-#         tags=[TagResponse(id=tag.id, title=tag.title, created_at=tag.created_at) for tag in photo.tags]
-#     )
+def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: User, db: Session) -> PhotoResponse:
+    if updated_photo.description is not None:
+        photo.description = updated_photo.description
+
+    if updated_photo.tags:
+        tag_objects = []
+        for tag_name in updated_photo.tags:
+            tag = db.query(Tag).filter(Tag.title == tag_name, ).first()
+            if not tag:
+                tag = Tag(title=tag_name, user_id=current_user.id)
+                db.add(tag)
+            tag_objects.append(tag)
+        photo.tags = tag_objects
+
+    photo.updated_at = datetime.utcnow()  # Оновлення поля updated_at
+    db.commit()
+    return PhotoResponse(
+        id=photo.id,
+        image_url=photo.image_url,
+        description=photo.description,
+        created_at=photo.created_at,
+        updated_at=photo.updated_at,
+        tags=[TagResponse(id=tag.id, title=tag.title, created_at=tag.created_at) for tag in photo.tags]
+    )
 
 
 async def delete_user_photo(photo_id: int, user_id: int, is_admin: bool, db: Session):
