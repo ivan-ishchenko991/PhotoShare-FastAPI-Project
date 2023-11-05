@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import List, Optional
 from enum import Enum
-from pydantic import BaseModel, EmailStr, Field, constr, SecretStr
+from pydantic import BaseModel, EmailStr, Field, constr, SecretStr, validator
+from datetime import datetime
 
 
 class UserModel(BaseModel):
@@ -82,3 +83,11 @@ class PhotoResponse(BaseModel):
 
 class PhotoListResponse(BaseModel):
     photos: List[PhotoResponse]
+
+class CommentIn(BaseModel):
+    text: str
+
+    @validator("text")
+    def set_updated_at(cls, v, values):
+        values["updated_at"] = datetime.now()
+        return v
