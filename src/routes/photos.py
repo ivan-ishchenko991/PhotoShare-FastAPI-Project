@@ -24,9 +24,9 @@ async def create_user_photo(
         image: UploadFile = File(...),
         description: str = Form(...),
         tags: List[str] = Form([]),
-        current_user: User = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
-):
+        current_user: User = Depends(auth_service.get_current_user),
+        ):
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
 
