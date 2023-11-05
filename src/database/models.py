@@ -3,6 +3,8 @@ import enum
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql.sqltypes import Enum
+from datetime import datetime
+from database import Base
 
 Base = declarative_base()
 
@@ -24,6 +26,8 @@ class User(Base):
     roles = Column(Enum("User", "Moderator", "Administrator", name="user_roles"), default="User")
     refresh_token = Column(String(255), nullable=True)
     confirmed_email = Column(Boolean, default=False)
+
+    comments = relationship("Comment", back_populates="user")
 
 
 photo_tag = Table("photo_2_tag", Base.metadata,
@@ -60,3 +64,16 @@ class Tag(Base):
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
 
     user = relationship('User', backref="tags")
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    text = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    photo_id = Column(Integer, ForeignKey("photos.id"))
+
+    user = relationship("User", back_populates="comments")
+    photo = relationship("Photo", back_populates="comments")
