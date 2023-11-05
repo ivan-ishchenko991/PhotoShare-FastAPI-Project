@@ -4,7 +4,6 @@ from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Bool
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql.sqltypes import Enum
 from datetime import datetime
-from database import Base
 
 Base = declarative_base()
 
@@ -64,6 +63,7 @@ class Tag(Base):
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
 
     user = relationship('User', backref="tags")
+
 
 class Comment(Base):
     __tablename__ = "comments"

@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
-from models import Comment
+from src.database.models import Comment
+from src.schemas import CommentIn
+
 
 def create_comment(db: Session, comment: CommentIn, user_id: int, photo_id: int):
     db_comment = Comment(**comment.dict(), user_id=user_id, photo_id=photo_id)
@@ -8,11 +10,14 @@ def create_comment(db: Session, comment: CommentIn, user_id: int, photo_id: int)
     db.refresh(db_comment)
     return db_comment
 
+
 def get_comments_by_photo_id(db: Session, photo_id: int):
     return db.query(Comment).filter(Comment.photo_id == photo_id).all()
 
+
 def get_comment_by_id(db: Session, comment_id: int):
     return db.query(Comment).filter(Comment.id == comment_id).first()
+
 
 def update_comment(db: Session, comment_id: int, comment: CommentIn):
     db_comment = db.query(Comment).filter(Comment.id == comment_id).first()
@@ -23,6 +28,7 @@ def update_comment(db: Session, comment_id: int, comment: CommentIn):
         db.refresh(db_comment)
         return db_comment
     return None
+
 
 def delete_comment(db: Session, comment_id: int):
     comment = db.query(Comment).filter(Comment.id == comment_id).first()

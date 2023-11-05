@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import List
+
 from fastapi import UploadFile
 import cloudinary
 from cloudinary.uploader import upload
@@ -69,7 +71,7 @@ def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User,
     return PhotoResponse(**photo_response_data)
 
 
-def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> PhotoListResponse:
+def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[PhotoResponse]:
     photos_query = db.query(Photo)
     # Якщо user_id має значення None, не фільтруємо за user_id
     if user_id is not None:

@@ -27,6 +27,12 @@ class UserResponse(BaseModel):
     detail: str = "User successfully created"
 
 
+class UserUpdate(BaseModel):
+    email: EmailStr
+    username: constr(min_length=3, max_length=50)
+    password: SecretStr
+
+
 class TokenModel(BaseModel):
     access_token: str
     refresh_token: str
@@ -41,6 +47,13 @@ class Role(str, Enum):
     User = "User"
     Moderator = "Moderator"
     Administrator = "Administrator"
+
+
+class AdminUserPatch(BaseModel):
+    email: Optional[EmailStr] = None
+    username: Optional[constr(min_length=3, max_length=50)] = None
+    password: Optional[SecretStr] = None
+    is_active: Optional[bool] = None
 
 
 class TagBase(BaseModel):
@@ -83,6 +96,22 @@ class PhotoResponse(BaseModel):
 
 class PhotoListResponse(BaseModel):
     photos: List[PhotoResponse]
+
+
+class CommentBase(BaseModel):
+    text: str = Field(max_length=500)
+
+
+class CommentModel(CommentBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+    user_id: int
+    photo_id: int
+
+    class Config:
+        from_attributes = True
+
 
 class CommentIn(BaseModel):
     text: str
