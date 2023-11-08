@@ -15,7 +15,6 @@ class UserDb(BaseModel):
     id: int
     username: str
     email: EmailStr
-    photos_count: int
     avatar: str
     created_at: datetime
 
@@ -89,7 +88,6 @@ class PhotoUpdate(BaseModel):
 class PhotoResponse(BaseModel):
     id: int
     image_url: str
-    qr_transform: Optional[str]
     description: str
     created_at: datetime
     updated_at: datetime
@@ -122,3 +120,6 @@ class CommentIn(BaseModel):
     def set_updated_at(cls, v, values):
         values["updated_at"] = datetime.now()
         return v
+
+class RatingCreate(BaseModel):
+    value: int
