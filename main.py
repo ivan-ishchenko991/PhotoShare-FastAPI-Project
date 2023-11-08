@@ -1,15 +1,24 @@
 import uvicorn
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import text
-from sqlalchemy.orm import Session
+from sqlalchemy import text, create_engine
+from sqlalchemy.orm import Session, sessionmaker
 # from fastapi_limiter import FastAPILimiter
 
 from src.conf.config import settings
 from src.database.connect import get_db
-from src.routes import auth, photos, tags, comments,users
+from src.routes import user, auth, photos, tags, comments, rating
 
 app = FastAPI()
+
+SQLALCHEMY_DATABASE_URL = settings.sqlalchemy_database_url
+
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+app.include_router(user.router, prefix="/users", tags=["users"])
+app.include_router(photo.router, prefix="/photos", tags=["photos"])
+app.include_router(rating.router, prefix="/ratings", tags=["ratings"])
 
 origins = [
     "http://localhost:3000"
@@ -49,6 +58,6 @@ app.include_router(auth.router, prefix='/api')
 app.include_router(photos.router, prefix='/api')
 app.include_router(tags.router, prefix='/api')
 app.include_router(comments.router, prefix='/api')
-app.include_router(users.router, prefix='/api')
+
 if __name__ == '__main__':
     uvicorn.run(app="main:app", reload=True)
