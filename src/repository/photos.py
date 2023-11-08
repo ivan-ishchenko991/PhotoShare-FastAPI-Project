@@ -35,9 +35,9 @@ def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User,
     timestamp = datetime.now().timestamp()
     public_id = f"{current_user.email}_{current_user.id}_{int(timestamp)}"
 
-    image_bytes = image.file.read()
-    upload_result = upload(image_bytes, public_id=public_id, overwrite=True)
-    image_url = upload_result['secure_url']
+    # image_bytes = image.file.read()
+    cloudinary.uploader.upload(image.file, public_id=public_id, overwrite=True)
+    image_url = cloudinary.CloudinaryImage(public_id).build_url(crop='fill')
     photo_data = photo.dict()
     photo_data["image_url"] = image_url
     photo_data["user_id"] = current_user.id

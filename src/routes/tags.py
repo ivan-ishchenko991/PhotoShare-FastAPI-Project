@@ -11,7 +11,7 @@ from src.database.models import User
 from src.services.roles import RoleChecker
 from src.services.auth import auth_service
 
-router = APIRouter(tags=["tags"])
+router = APIRouter(prefix='/tags', tags=["tags"])
 
 allowed_get_all_tags = RoleChecker([Role.Administrator])
 allowed_remove_tag = RoleChecker([Role.Administrator])
