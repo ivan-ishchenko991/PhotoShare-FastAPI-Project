@@ -8,7 +8,7 @@ from src.schemas import UserDb, UserUpdate, AdminUserPatch
 from src.repository import users as repository_users
 from src.services.auth import auth_service
 
-router = APIRouter(tags=["users"])
+router = APIRouter(prefix='/users', tags=["users"])
 
 
 # Рахуємо фото

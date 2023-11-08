@@ -8,7 +8,7 @@ from src.repository.comments import create_comment, get_comments_by_photo_id, ge
 from src.schemas import CommentBase, CommentModel
 from src.services.auth import auth_service
 
-router = APIRouter(tags=["comments"])
+router = APIRouter(prefix='/comments', tags=["comments"])
 
 
 @router.post("/{photos_id}", response_model=CommentModel)

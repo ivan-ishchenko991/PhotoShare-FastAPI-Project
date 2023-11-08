@@ -15,7 +15,7 @@ from src.database.connect import get_db
 from src.database.models import Photo, User
 from src.repository import photos as repository_photos
 
-router = APIRouter(tags=["photos"])
+router = APIRouter(prefix='/photos', tags=["photos"])
 security = HTTPBearer()
 
 
