@@ -71,3 +71,12 @@ class Comment(Base):
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
     user_id = Column(Integer, ForeignKey("users.id"))
     photo_id = Column(Integer, ForeignKey("photos.id"))
+
+class Rating(Base):
+    __tablename__ = "ratings"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    photo_id = Column(Integer, ForeignKey("photos.id"))
+    value = Column(Integer, default=0)
+
+Base.metadata.create_all(bind=engine)
