@@ -8,13 +8,13 @@ from src.schemas import (
     PhotoUpdate,
     PhotoResponse,
     PhotoListResponse,
-    TagResponse
+    TagResponse,
 )
 from src.services.auth import auth_service
 from src.database.connect import get_db
 from src.database.models import Photo, User
 from src.repository import photos as repository_photos
-
+from src.repository import qr_code as qr
 router = APIRouter(prefix='/photos', tags=["photos"])
 security = HTTPBearer()
 
@@ -35,6 +35,16 @@ async def create_user_photo(
 
     photo_data = PhotoCreate(description=description, tags=tags)
     return repository_photos.create_user_photo(photo_data, image, current_user, db)
+
+@router.post("/create_qr_code",response_model=PhotoResponse,status_code=status.HTTP_201_CREATED)
+async def create_qr_code(photo_id: int,
+        current_user: User = Depends(auth_service.get_current_user),
+        db: Session = Depends(get_db)):
+    photo = await qr.make_qr_code_for_photo(photo_id,current_user,db)
+    if photo is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
+    return photo
+    
 
 
 @router.get("/", response_model=PhotoListResponse)
@@ -78,6 +88,7 @@ async def get_user_photo_by_id(
     return PhotoResponse(
         id=photo.id,
         image_url=photo.image_url,
+        qr_transform = photo.qr_transform,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -135,6 +146,7 @@ async def delete_user_photo(
     response_data = {
         "id": result.id,
         "image_url": result.image_url,
+        "qr_transform":result.qr_transform,
         "description": result.description,
         "created_at": result.created_at,
         "updated_at": result.updated_at,

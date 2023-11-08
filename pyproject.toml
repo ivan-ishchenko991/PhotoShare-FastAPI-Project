@@ -21,6 +21,7 @@ fastapi-mail = "^1.4.1"
 cloudinary = "^1.36.0"
 redis = "^5.0.1"
 pydantic-settings = "^2.0.3"
+qrcode = {extras = ["pil"], version = "^7.4.2"}
 
 
 [tool.poetry.group.dev.dependencies]
