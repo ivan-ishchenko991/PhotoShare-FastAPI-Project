@@ -11,17 +11,12 @@ from src.routes import user, auth, photos, tags, comments, rating
 
 app = FastAPI()
 
-SQLALCHEMY_DATABASE_URL = settings.sqlalchemy_database_url
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 app.include_router(user.router, prefix="/users", tags=["users"])
 app.include_router(photo.router, prefix="/photos", tags=["photos"])
 app.include_router(rating.router, prefix="/ratings", tags=["ratings"])
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:8000"
 ]
 
 app.add_middleware(
