@@ -81,7 +81,7 @@ def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[Ph
     return [PhotoResponse(
         id=photo.id,
         image_url=photo.image_url,
-        qr_transform = photo.qr_transform,
+        qr_transform=photo.qr_transform,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -102,7 +102,7 @@ def get_user_photo_by_id(photo_id: int, db: Session, current_user: User) -> Phot
     return PhotoResponse(
         id=photo.id,
         image_url=photo.image_url,
-        qr_transform = photo.qr_transform,
+        qr_transform=photo.qr_transform,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -134,7 +134,7 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
     return PhotoResponse(
         id=photo.id,
         image_url=photo.image_url,
-        qr_transform = photo.qr_transform,
+        qr_transform=photo.qr_transform,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
