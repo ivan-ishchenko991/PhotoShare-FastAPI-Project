@@ -8,13 +8,14 @@ from src.schemas import (
     PhotoUpdate,
     PhotoResponse,
     PhotoListResponse,
-    TagResponse,
+    TagResponse, TransformBodyModel, PhotoTransform, PhotoLinkTransform,
 )
 from src.services.auth import auth_service
 from src.database.connect import get_db
 from src.database.models import Photo, User
 from src.repository import photos as repository_photos
 from src.repository import qr_code as qr
+from src.services.photos import transform_image, create_link_transform_image
 
 router = APIRouter(prefix='/photos', tags=["photos"])
 security = HTTPBearer()
@@ -155,3 +156,41 @@ async def delete_user_photo(
     }
 
     return response_data
+
+
+@router.patch("/transformation/{photo_id}", response_model=PhotoTransform)
+async def photo_transformation(
+        photo_id: int,
+        body: TransformBodyModel,
+        current_user: User = Depends(auth_service.get_current_user),
+        db: Session = Depends(get_db),
+):
+    photo = await transform_image(photo_id, body, current_user, db)
+    if photo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Image not found"
+        )
+    if isinstance(photo, Photo):
+        raise HTTPException(
+            status_code=status.HTTP_200_OK,
+            detail="You don't choose type transformation",
+        )
+    return {
+        "id": photo_id,
+        "image_transform": photo,
+        "detail": "Your image successfully transform",
+    }
+
+
+@router.post("/create_link_for_transformation", response_model=PhotoLinkTransform)
+async def create_link_for_image_transformation(
+        photo_id: int,
+        current_user: User = Depends(auth_service.get_current_user),
+        db: Session = Depends(get_db),
+):
+    result = await create_link_transform_image(photo_id, current_user, db)
+    if result is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Image not found"
+        )
+    return result
