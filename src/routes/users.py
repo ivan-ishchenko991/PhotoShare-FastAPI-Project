@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from sqlalchemy.orm import Session
 from typing import Dict
+from sqlalchemy.orm import Session
 from src.database.connect import get_db
 from src.database.models import User, Photo
 from src.repository.photos import get_user_photos
@@ -11,19 +11,21 @@ from src.services.auth import auth_service
 router = APIRouter(prefix='/users', tags=["users"])
 
 
-# Рахуємо фото
+# загальна кількість фотографій у базі
+
+
 def get_user_photos_count(user_id: int, db: Session) -> int:
     photos_count = db.query(Photo).filter(Photo.user_id == user_id).count()
     return photos_count
 
 
-# Профіль користувача
+# Створюємо загальні профіль користувачів
 
 @router.get("/me/", response_model=UserDb)
 async def read_users_me(
         current_user: UserDb = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
-        ):
+):
     photos_count = get_user_photos_count(current_user.id, db)
 
     current_user.photos_count = photos_count
@@ -31,14 +33,14 @@ async def read_users_me(
     return current_user
 
 
-# Редагування профілю користувача
+# Редагуємо профіль користувача
 
 @router.put("/edit", response_model=Dict[str, str])
 async def edit_user_profile(
         user_update: UserUpdate,
         current_user: UserDb = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
-        ):
+):
     user = await repository_users.get_user_by_id(current_user.id, db)
 
     if user is None:
@@ -66,7 +68,7 @@ async def edit_user_profile(
     return {"message": "Data changed successfully"}
 
 
-# Редагування профілю користувача
+# Редагування профілю користувача putch
 
 @router.patch("/patch/{user_id}", response_model=Dict[str, str])
 async def patch_user_profile(
@@ -74,7 +76,7 @@ async def patch_user_profile(
         user_update: AdminUserPatch,
         current_user: UserDb = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
-        ):
+):
     if not current_user or "Administrator" not in current_user.roles.split(","):
         raise HTTPException(status_code=403, detail="Permission denied")
 
