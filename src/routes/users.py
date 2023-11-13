@@ -19,7 +19,7 @@ def get_user_photos_count(user_id: int, db: Session) -> int:
     return photos_count
 
 
-# Створюємо загальні профіль користувачів
+# Створюємо загальний профіль користувачів
 
 @router.get("/me/", response_model=UserDb)
 async def read_users_me(
