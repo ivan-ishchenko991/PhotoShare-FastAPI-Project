@@ -24,7 +24,7 @@ def init_cloudinary():
 
 def get_public_id_from_image_url(image_url: str) -> str:
     parts = image_url.split("/")
-    public_id = parts[-1].rsplit(".", 1)[0]
+    public_id = parts[-1]
     public_id = public_id.replace('%40', '@')
     return public_id
 
@@ -81,7 +81,7 @@ def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[Ph
     return [PhotoResponse(
         id=photo.id,
         image_url=photo.image_url,
-        qr_transform = photo.qr_transform,
+        qr_transform=photo.qr_transform,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -102,7 +102,7 @@ def get_user_photo_by_id(photo_id: int, db: Session, current_user: User) -> Phot
     return PhotoResponse(
         id=photo.id,
         image_url=photo.image_url,
-        qr_transform = photo.qr_transform,
+        qr_transform=photo.qr_transform,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -134,7 +134,7 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
     return PhotoResponse(
         id=photo.id,
         image_url=photo.image_url,
-        qr_transform = photo.qr_transform,
+        qr_transform=photo.qr_transform,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -153,10 +153,11 @@ async def delete_user_photo(photo_id: int, user_id: int, is_admin: bool, db: Ses
 
     # Видалення фотографії з Cloudinary за її public_id
     public_id = get_public_id_from_image_url(photo.image_url)
+    print(public_id)
 
     init_cloudinary()
-    destroy(public_id)
-    destroy("PhotoshareApp_tr/" + public_id)
+    destroy(public_id, resource_type='image', type="upload")
+    destroy("PhotoshareApp_qrcode/" + public_id + '_qr')
     destroy("PhotoshareApp_tr/" + public_id + '_qr')
 
     db.delete(photo)
