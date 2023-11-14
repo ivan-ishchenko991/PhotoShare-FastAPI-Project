@@ -3,7 +3,7 @@ from src.database.models import Comment, User
 from src.schemas import CommentBase
 
 
-def create_comment(comment: CommentBase, photo_id: int, current_user: User, db: Session):
+async def create_comment(comment: CommentBase, photo_id: int, current_user: User, db: Session):
     db_comment = Comment(**comment.dict(), user_id=current_user.id, photo_id=photo_id)
     db.add(db_comment)
     db.commit()
@@ -11,15 +11,15 @@ def create_comment(comment: CommentBase, photo_id: int, current_user: User, db: 
     return db_comment
 
 
-def get_comments_by_photo_id(photo_id: int, db: Session):
+async def get_comments_by_photo_id(photo_id: int, db: Session):
     return db.query(Comment).filter(Comment.photo_id == photo_id).all()
 
 
-def get_comment_by_id(comment_id: int, db: Session):
+async def get_comment_by_id(comment_id: int, db: Session):
     return db.query(Comment).filter(Comment.id == comment_id).first()
 
 
-def update_comment(comment_id: int, comment: CommentBase, db: Session):
+async def update_comment(comment_id: int, comment: CommentBase, db: Session):
     db_comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if db_comment:
         for key, value in comment.dict().items():
@@ -30,7 +30,7 @@ def update_comment(comment_id: int, comment: CommentBase, db: Session):
     return None
 
 
-def delete_comment(comment_id: int, db: Session):
+async def delete_comment(comment_id: int, db: Session):
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if comment:
         db.delete(comment)

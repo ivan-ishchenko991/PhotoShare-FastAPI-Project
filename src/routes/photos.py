@@ -28,7 +28,10 @@ async def create_user_photo(
         tags: List[str] = Form([]),
         db: Session = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
+        token: str = Depends(auth_service.oauth2_scheme),
 ):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if not current_user:
         raise HTTPException(status_code=401, detail="Authentication required")
 
@@ -42,7 +45,11 @@ async def create_user_photo(
 @router.post("/create_qr_code", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
 async def create_qr_code(photo_id: int,
                          current_user: User = Depends(auth_service.get_current_user),
-                         db: Session = Depends(get_db)):
+                         db: Session = Depends(get_db),
+                         token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photo = await qr.make_qr_code_for_photo(photo_id, current_user, db)
     if photo is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Photo not found")
@@ -55,7 +62,10 @@ async def get_user_photos(
         limit: int = 10,
         db: Session = Depends(get_db),
         current_user: User = Depends(auth_service.get_current_user),
+        token: str = Depends(auth_service.oauth2_scheme),
 ):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if "Administrator" in current_user.roles:
         user_id = None  # Адміністратор має доступ до фотографій будь-якого користувача
     else:
@@ -70,7 +80,10 @@ async def get_user_photo_by_id(
         photo_id: int,
         current_user: User = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
+        token: str = Depends(auth_service.oauth2_scheme),
 ):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if "Administrator" in current_user.roles.split(","):
         user_id = None  # Адміністратор має доступ до фотографій будь-якого користувача
     else:
@@ -104,7 +117,10 @@ async def update_user_photo(
         updated_photo: PhotoUpdate,
         current_user: User = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
+        token: str = Depends(auth_service.oauth2_scheme),
 ):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photo = repository_photos.get_user_photo_by_id(photo_id, db)
 
     if not photo:
@@ -128,7 +144,10 @@ async def delete_user_photo(
         photo_id: int,
         current_user: User = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
+        token: str = Depends(auth_service.oauth2_scheme),
 ):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if not current_user:
         raise HTTPException(
             status_code=403, detail="Permission denied"
@@ -164,7 +183,10 @@ async def photo_transformation(
         body: TransformBodyModel,
         current_user: User = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
+        token: str = Depends(auth_service.oauth2_scheme),
 ):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photo = await transform_image(photo_id, body, current_user, db)
     if photo is None:
         raise HTTPException(
@@ -187,7 +209,10 @@ async def create_link_for_image_transformation(
         photo_id: int,
         current_user: User = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
+        token: str = Depends(auth_service.oauth2_scheme),
 ):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     result = await create_link_transform_image(photo_id, current_user, db)
     if result is None:
         raise HTTPException(

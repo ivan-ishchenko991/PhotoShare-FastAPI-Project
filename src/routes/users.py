@@ -23,7 +23,10 @@ def get_user_photos_count(user_id: int, db: Session) -> int:
 async def read_users_me(
         current_user: UserDb = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
-        ):
+        token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photos_count = get_user_photos_count(current_user.id, db)
 
     current_user.photos_count = photos_count
@@ -38,7 +41,10 @@ async def edit_user_profile(
         user_update: UserUpdate,
         current_user: UserDb = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
-        ):
+        token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     user = await repository_users.get_user_by_id(current_user.id, db)
 
     if user is None:
@@ -74,7 +80,10 @@ async def patch_user_profile(
         user_update: AdminUserPatch,
         current_user: UserDb = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
-        ):
+        token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if not current_user or "Administrator" not in current_user.roles.split(","):
         raise HTTPException(status_code=403, detail="Permission denied")
 

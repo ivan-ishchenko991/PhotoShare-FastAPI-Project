@@ -11,7 +11,7 @@ from src.database.connect import get_db
 from src.repository import users as repository_users
 import redis
 from src.conf.config import settings
-
+import time
 
 class Auth:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -106,5 +106,20 @@ class Auth:
             user = pickle.loads(user)
         return user
 
+    async def is_token_blacklisted(self, token: str):
+        return bool(self.r.get(f"blacklist:{token}"))
+
+    async def logout(self, token: str):
+        try:
+            expire_time = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])['exp']
+            current_time = time.time()
+            blacklisted_duration = int(expire_time - current_time)
+            self.r.setex(f"blacklist:{token}", blacklisted_duration, 1)
+        except jwt.ExpiredSignatureError:
+            print("Token has already expired")
+            return "Token has already expired"
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            return f"An error occurred: {e}"
 
 auth_service = Auth()
