@@ -20,7 +20,7 @@ class User(Base):
     username = Column(String(50))
     email = Column(String(250), nullable=False, unique=True)
     password = Column(String(255), nullable=False)
-    created_at = Column('crated_at', DateTime, default=func.now())
+    created_at = Column('crated_at', DateTime, default=datetime.now)
     avatar = Column(String(255), nullable=True)
     roles = Column(Enum("User", "Moderator", "Administrator", name="user_roles"), default="User")
     refresh_token = Column(String(255), nullable=True)
@@ -43,8 +43,8 @@ class Photo(Base):
     image_url = Column(String(300))
     description = Column(String(500), nullable=True)
     tags = relationship('Tag', secondary=photo_2_tag, backref='photos')
-    created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now)
     # Зовнішній ключ для зв'язку з користувачем
     user_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), default=None)
     image_transform = Column(String(200), nullable=True)
@@ -58,7 +58,7 @@ class Tag(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String(100), nullable=False, unique=True)
-    created_at = Column(DateTime, default=func.now())
+    created_at = Column(DateTime, default=datetime.now)
     user_id = Column('user_id', ForeignKey('users.id', ondelete='CASCADE'), default=None)
 
 
@@ -67,7 +67,7 @@ class Comment(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     text = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, onupdate=datetime.now)
     user_id = Column(Integer, ForeignKey("users.id"))
     photo_id = Column(Integer, ForeignKey("photos.id"))
