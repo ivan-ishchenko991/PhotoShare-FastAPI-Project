@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from sqlalchemy.orm import Session
 from typing import Dict
+from sqlalchemy.orm import Session
 from src.database.connect import get_db
 from src.database.models import User, Photo
 from src.repository.photos import get_user_photos
@@ -11,13 +11,15 @@ from src.services.auth import auth_service
 router = APIRouter(prefix='/users', tags=["users"])
 
 
-# Рахуємо фото
+# загальна кількість фотографій у базі
+
+
 def get_user_photos_count(user_id: int, db: Session) -> int:
     photos_count = db.query(Photo).filter(Photo.user_id == user_id).count()
     return photos_count
 
 
-# Профіль користувача
+# Створюємо загальний профіль користувачів
 
 @router.get("/me/", response_model=UserDb)
 async def read_users_me(
@@ -34,7 +36,7 @@ async def read_users_me(
     return current_user
 
 
-# Редагування профілю користувача
+# Редагуємо профіль користувача
 
 @router.put("/edit", response_model=Dict[str, str])
 async def edit_user_profile(
@@ -72,7 +74,7 @@ async def edit_user_profile(
     return {"message": "Data changed successfully"}
 
 
-# Редагування профілю користувача
+# Редагування профілю користувача putch
 
 @router.patch("/patch/{user_id}", response_model=Dict[str, str])
 async def patch_user_profile(
