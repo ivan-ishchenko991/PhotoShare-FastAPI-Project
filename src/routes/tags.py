@@ -21,8 +21,11 @@ allowed_edit_tag = RoleChecker([Role.Administrator])
 @router.post("/", response_model=TagResponse)
 async def create_tag(body: TagBase,
                      db: Session = Depends(get_db),
-                     current_user: User = Depends(auth_service.get_current_user)
-                     ):
+                     current_user: User = Depends(auth_service.get_current_user),
+                     token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     tag = await repository_tags.create_tag(body, db, current_user)
     if not tag:
         raise HTTPException(
@@ -36,8 +39,11 @@ async def create_tag(body: TagBase,
 async def read_my_tags(skip: int = 0,
                        limit: int = 100,
                        db: Session = Depends(get_db),
-                       current_user: User = Depends(auth_service.get_current_user)
-                       ):
+                       current_user: User = Depends(auth_service.get_current_user),
+                       token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     tags = await repository_tags.get_my_tags(skip, limit, db, current_user)
     return tags
 
@@ -46,8 +52,11 @@ async def read_my_tags(skip: int = 0,
 async def read_all_tags(skip: int = 0,
                         limit: int = 100,
                         db: Session = Depends(get_db),
-                        current_user: User = Depends(auth_service.get_current_user)
-                        ):
+                        current_user: User = Depends(auth_service.get_current_user),
+                        token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     tags = await repository_tags.get_all_tags(skip, limit, db)
     return tags
 
@@ -55,8 +64,11 @@ async def read_all_tags(skip: int = 0,
 @router.get("/{tag_id}", response_model=TagResponse)
 async def read_tag_by_id(tag_id: int,
                          db: Session = Depends(get_db),
-                         current_user: User = Depends(auth_service.get_current_user)
-                         ):
+                         current_user: User = Depends(auth_service.get_current_user),
+                         token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     tag = await repository_tags.get_tag_by_id(tag_id, db)
     if tag is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message.NOT_FOUND)
@@ -67,8 +79,11 @@ async def read_tag_by_id(tag_id: int,
 async def update_tag(body: TagBase,
                      tag_id: int,
                      db: Session = Depends(get_db),
-                     current_user: User = Depends(auth_service.get_current_user)
-                     ):
+                     current_user: User = Depends(auth_service.get_current_user),
+                     token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     tag = await repository_tags.update_tag(tag_id, body, db)
     if tag is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message.NOT_FOUND)
@@ -78,8 +93,11 @@ async def update_tag(body: TagBase,
 @router.delete("/{tag_id}", response_model=TagResponse, dependencies=[Depends(allowed_remove_tag)])
 async def remove_tag(tag_id: int,
                      db: Session = Depends(get_db),
-                     current_user: User = Depends(auth_service.get_current_user)
-                     ):
+                     current_user: User = Depends(auth_service.get_current_user),
+                     token: str = Depends(auth_service.oauth2_scheme),
+):
+    if await auth_service.is_token_blacklisted(token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     tag = await repository_tags.remove_tag(tag_id, db)
     if tag is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=message.NOT_FOUND)

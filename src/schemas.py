@@ -161,7 +161,7 @@ class CommentBase(BaseModel):
 class CommentModel(CommentBase):
     id: int
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime]
     user_id: int
     photo_id: int
 

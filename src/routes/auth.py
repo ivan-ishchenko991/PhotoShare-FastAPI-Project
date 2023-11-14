@@ -38,6 +38,10 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     await repository_users.update_token(user, refresh_token, db)
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
+@router.post("/logout")
+async def logout(token: str = Depends(auth_service.oauth2_scheme)):
+    await auth_service.logout(token)
+    return {"message": "Successfully logged out"}
 
 @router.get('/confirmed_email/{token}')
 async def confirmed_email(token: str, db: Session = Depends(get_db)):
