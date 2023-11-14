@@ -3,6 +3,8 @@ from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from pydantic import  BaseModel
+from typing import Optional
 # from fastapi_limiter import FastAPILimiter
 
 from src.conf.config import settings
@@ -28,6 +30,20 @@ app.add_middleware(
 def root():
     return {"message": "Welcome to PhotoShare!"}
 
+
+class User(BaseModel):
+    name: str
+    age: int
+
+
+@app.get("/")
+async def root(name: str, age: int):
+    return {"message": f"Hello {name}, you are {age} years old"}
+
+
+@app.post("/post")
+async def post(user: User, user2: User):
+    return {"message": f"Hello {user.name}, {user2.name}"}
 
 @app.get("/api/healthchecker")
 def healthchecker(db: Session = Depends(get_db)):
