@@ -4,10 +4,9 @@ from datetime import datetime
 from src.database.connect import get_db
 from src.database.models import User
 from src.repository import comments
-# create_comment, get_comments_by_photo_id, get_comment_by_id, update_comment, \
-# delete_comment)
 from src.schemas import CommentBase, CommentModel
 from src.services.auth import auth_service
+from src.services.roles import RoleChecker
 
 router = APIRouter(prefix='/comments', tags=["comments"])
 
@@ -60,8 +59,8 @@ async def update_comment(
     updated_comment = await comments.update_comment(comment_id, comment, db)
     return updated_comment
 
-
-@router.delete("/{comment_id}/", response_model=CommentModel)
+allowed_roles_to_delete_comments = RoleChecker(["Administrator", "Moderator"])
+@router.delete("/{comment_id}/", response_model=CommentModel, dependencies = [Depends(allowed_roles_to_delete_comments)])
 async def remove_comment(
         comment_id: int,
         db: Session = Depends(get_db),
@@ -77,11 +76,5 @@ async def remove_comment(
     if not comment:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Comment not found")
 
-    if (
-            auth_service.is_admin(current_user) or
-            auth_service.is_moderator(current_user)
-    ):
-        deleted_comment = await comments.delete_comment(comment_id, db)
-        return deleted_comment
-    else:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Permission denied to delete comment")
+    deleted_comment = await comments.delete_comment(comment_id, db)
+    return deleted_comment

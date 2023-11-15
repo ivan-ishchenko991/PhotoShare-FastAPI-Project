@@ -26,6 +26,8 @@ async def signup(body: UserModel, background_tasks: BackgroundTasks, request: Re
 @router.post("/login", response_model=TokenModel)
 async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = await repository_users.get_user_by_email(body.username, db)
+    if user.is_banned:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User is banned")
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
     if not user.confirmed_email:

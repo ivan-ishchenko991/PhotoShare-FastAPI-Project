@@ -43,3 +43,9 @@ async def confirmed_email(email: str, db: Session) -> None:
     user = await get_user_by_email(email, db) 
     user.confirmed_email = True 
     db.commit() 
+
+async def block_user(user_email:str, db: Session) -> None: 
+    result = await get_user_by_email(user_email,db) 
+    result.is_banned = True
+    db.commit()         
+    db.refresh(result)
