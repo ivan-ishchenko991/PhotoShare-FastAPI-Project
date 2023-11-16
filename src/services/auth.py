@@ -111,6 +111,9 @@ class Auth:
 
     async def logout(self, token: str):
         try:
+            payload = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])
+            email = payload.get('sub')
+            self.r.delete(f"user:{email}")    
             expire_time = jwt.decode(token, self.SECRET_KEY, algorithms=[self.ALGORITHM])['exp']
             current_time = time.time()
             blacklisted_duration = int(expire_time - current_time)

@@ -7,12 +7,11 @@ from src.repository.photos import get_user_photos
 from src.schemas import UserDb, UserUpdate, AdminUserPatch
 from src.repository import users as repository_users
 from src.services.auth import auth_service
-
+from src.services.roles import RoleChecker
 router = APIRouter(prefix='/users', tags=["users"])
 
-
+allowed_roles_to_block = RoleChecker(["Administrator"])
 # загальна кількість фотографій у базі
-
 
 def get_user_photos_count(user_id: int, db: Session) -> int:
     photos_count = db.query(Photo).filter(Photo.user_id == user_id).count()
@@ -35,6 +34,14 @@ async def read_users_me(
 
     return current_user
 
+@router.post("/block", dependencies=[Depends(allowed_roles_to_block)])
+async def blocking_user(user_email: str, 
+                        current_user: User = Depends(auth_service.get_current_user),
+                        db: Session = Depends(get_db),
+                        token: str = Depends(auth_service.oauth2_scheme),
+):
+    await repository_users.block_user(user_email,db)
+    return {"message": "User blocked"}
 
 # Редагуємо профіль користувача
 

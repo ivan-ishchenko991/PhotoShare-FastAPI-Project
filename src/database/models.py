@@ -25,6 +25,7 @@ class User(Base):
     roles = Column(Enum("User", "Moderator", "Administrator", name="user_roles"), default="User")
     refresh_token = Column(String(255), nullable=True)
     confirmed_email = Column(Boolean, default=False)
+    is_banned = Column(Boolean, default=False)
     comments = relationship("Comment", backref="users")
     tags = relationship("Tag", backref="users")
     photos = relationship("Photo", backref="user")
