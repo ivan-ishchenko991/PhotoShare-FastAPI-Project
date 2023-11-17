@@ -13,6 +13,18 @@ from src.repository.photos import init_cloudinary
 
 
 async def transform_image(photo_id: int, body: TransformBodyModel, user: User, db: Session) -> Photo | None:
+    """
+    The transform_image function takes in a photo_id, body, user and db.
+        It then initializes the cloudinary library.
+        Next it queries the database for a photo that matches both the id and user_id of what was passed into this function.
+        If there is no matching photo found, None is returned to indicate that nothing was found.
+
+    :param photo_id: int: Identify the photo to be transformed
+    :param body: TransformBodyModel: Pass the data from the frontend to the backend
+    :param user: User: Get the user id from the token
+    :param db: Session: Communicate with the database
+    :return: The transformed image
+    """
     init_cloudinary()
     photo = db.query(Photo).filter(and_(Photo.id == photo_id, Photo.user_id == user.id)).first()
     if photo:
@@ -73,6 +85,18 @@ async def transform_image(photo_id: int, body: TransformBodyModel, user: User, d
 
 
 async def create_link_transform_image(photo_id: int, user: User, db: Session) -> str | None:
+    """
+    The create_link_transform_image function takes in a photo_id, user and db as parameters.
+    It then initializes the cloudinary library. It then queries the database for a photo with that id and user_id.
+    If it finds one, it creates a QR code from the image transform url of that photo using qrcode library.
+    Then it uploads this QR code to Cloudinary under PhotoshareApp_tr folder with public id being original public id + 'qr'.
+    It returns an object containing both image transform url and qr transform url.
+
+    :param photo_id: int: Get the photo from the database
+    :param user: User: Get the user's id
+    :param db: Session: Query the database for a photo with the given id and user
+    :return: The image_transform and qr_transform url
+    """
     init_cloudinary()
     photo = db.query(Photo).filter(and_(Photo.id == photo_id, Photo.user_id == user.id)).first()
     if photo:

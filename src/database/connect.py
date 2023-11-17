@@ -10,6 +10,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_db():
+    """
+    The get_db function is a context manager that returns the database session.
+    It also ensures that the connection to the database is closed after each request.
+
+    :return: A database session
+    :doc-author: Trelent
+    """
     db = SessionLocal()
     try:
         yield db

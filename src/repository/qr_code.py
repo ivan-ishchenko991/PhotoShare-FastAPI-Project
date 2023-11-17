@@ -8,6 +8,17 @@ from src.conf.config import settings
 
 
 async def make_qr_code_for_photo(photo_id: int, current_user: User, db: Session):
+    """
+    The make_qr_code_for_photo function takes in a photo_id, current_user, and db.
+    It then uses the qrcode library to create a QR code for the photo with that id.
+    The QR code is uploaded to Cloudinary using cloudinary's uploader function and saved as an image with the same public id as
+    the original image but appended with '_qr'. The url of this new qr transform is then added to the Photo object in our database.
+
+    :param photo_id: int: Identify the photo to be transformed
+    :param current_user: User: Ensure that the user is logged in and can only access their own photos
+    :param db: Session: Connect to the database
+    :return: A photo object with the qr_transform attribute set to the url of
+    """
     cloudinary.config(
         cloud_name=settings.cloudinary_name,
         api_key=settings.cloudinary_api_key,

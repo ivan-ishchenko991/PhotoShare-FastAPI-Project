@@ -4,6 +4,7 @@ from enum import Enum
 from pydantic import BaseModel, EmailStr, Field, constr, SecretStr, validator
 from datetime import datetime
 
+
 class UserModel(BaseModel):
     username: str = Field(min_length=5, max_length=16)
     email: EmailStr
@@ -19,7 +20,8 @@ class UserDb(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True        
+        from_attributes = True
+
 
 class UserResponse(BaseModel):
     user: UserDb

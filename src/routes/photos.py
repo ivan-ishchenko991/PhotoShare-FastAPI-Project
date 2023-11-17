@@ -30,6 +30,18 @@ async def create_user_photo(
         current_user: User = Depends(auth_service.get_current_user),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+    The create_user_photo function creates a new photo for the current user.
+
+    :param image: UploadFile: Upload the image file to the server
+    :param description: str: Specify the description of the photo
+    :param tags: List[str]: Create a list of tags
+    :param db: Session: Pass the database session to the repository layer
+    :param current_user: User: Get the current user
+    :param token: str: Check if the token is blacklisted
+    :param : Get the current user
+    :return: A tuple of (photo, str)
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if not current_user:
@@ -47,7 +59,19 @@ async def create_qr_code(photo_id: int,
                          current_user: User = Depends(auth_service.get_current_user),
                          db: Session = Depends(get_db),
                          token: str = Depends(auth_service.oauth2_scheme),
-):
+                         ):
+    """
+    The create_qr_code function creates a QR code for the photo with the given ID.
+    The function requires that a valid token be passed in as an authorization header, and it will return an error if no such token is found or if the token is blacklisted.
+    If no photo with the given ID exists, then this function will return a 404 Not Found error.
+
+    :param photo_id: int: Get the photo from the database
+    :param current_user: User: Get the user that is currently logged in
+    :param db: Session: Access the database
+    :param token: str: Check if the token is blacklisted
+    :param : Get the photo id from the url
+    :return: A photo object
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photo = await qr.make_qr_code_for_photo(photo_id, current_user, db)
@@ -64,6 +88,19 @@ async def get_user_photos(
         current_user: User = Depends(auth_service.get_current_user),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+    The get_user_photos function returns a list of photos for the current user.
+    The function takes in an optional skip and limit parameter to paginate through the results.
+
+
+    :param skip: int: Specify the number of photos to skip
+    :param limit: int: Set the number of photos to be returned
+    :param db: Session: Get the database session
+    :param current_user: User: Get the current user
+    :param token: str: Check if the token is blacklisted
+    :param : Specify the number of photos to skip
+    :return: A list of photos for the current user
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if "Administrator" in current_user.roles:
@@ -82,6 +119,22 @@ async def get_user_photo_by_id(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+    The get_user_photo_by_id function is used to get a specific photo by its id.
+        The function takes the following parameters:
+            - photo_id: int, required, unique identifier of the photo to be retrieved.
+            - current_user: User object containing information about the user making this request (optional).
+                This parameter is automatically passed in when using an access token with this endpoint. If no access token
+                is provided or if it has expired, then current_user will not be populated and you will receive a 401 error
+                response from FastAPI indicating that there was a problem with authentication. You can use Post
+
+    :param photo_id: int: Specify the photo id
+    :param current_user: User: Get the current user
+    :param db: Session: Access the database
+    :param token: str: Check if the token is blacklisted
+    :param : Pass the photo id to the function
+    :return: A photo by id
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if "Administrator" in current_user.roles.split(","):
@@ -119,6 +172,21 @@ async def update_user_photo(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+    The update_user_photo function updates a photo in the database.
+        The function takes an id of the photo to be updated, and a PhotoUpdate object containing
+        information about what is to be updated. It then checks if the user has permission to update
+        this particular photo (if they are an admin or if it's their own). If so, it calls on
+        repository_photos' update_user_photo function which actually performs the update.
+
+    :param photo_id: int: Specify the id of the photo to be deleted
+    :param updated_photo: PhotoUpdate: Get the updated photo from the request body
+    :param current_user: User: Get the user that is currently logged in
+    :param db: Session: Get a database session
+    :param token: str: Check if the token is blacklisted
+    :param : Get the current user from the database
+    :return: The updated photo object
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photo = repository_photos.get_user_photo_by_id(photo_id, db)
@@ -146,6 +214,16 @@ async def delete_user_photo(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+    The delete_user_photo function deletes a photo from the database.
+
+    :param photo_id: int: Specify the photo to be deleted
+    :param current_user: User: Get the current user
+    :param db: Session: Access the database
+    :param token: str: Check if the token is blacklisted
+    :param : Get the current user from the database
+    :return: A dictionary with the following structure:
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if not current_user:
@@ -185,6 +263,21 @@ async def photo_transformation(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+    The photo_transformation function is responsible for transforming the image.
+        It takes in a photo_id, body and current_user as parameters.
+        The photo_id parameter is used to find the image that needs to be transformed.
+        The body parameter contains all of the transformation information needed to transform an image (e.g., rotation angle).
+        The current user is used for authentication purposes.
+
+    :param photo_id: int: Get the photo from the database by its id
+    :param body: TransformBodyModel: Get the data from the request body
+    :param current_user: User: Get the current user from the database
+    :param db: Session: Get a database session
+    :param token: str: Get the token from the header
+    :param : Get the photo id
+    :return: A dict with the id of the photo, a transformed image and a detail
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photo = await transform_image(photo_id, body, current_user, db)
@@ -211,6 +304,20 @@ async def create_link_for_image_transformation(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+    The create_link_for_image_transformation function creates a link for the image transformation.
+        The function takes in an integer photo_id, which is the id of the photo to be transformed.
+        It also takes in a current_user object, which is used to determine if the user has access to this resource.
+        It also takes in a db Session object, which allows us to interact with our database and perform queries on it.
+        Finally it takes in token string that will be used for authentication purposes.
+
+    :param photo_id: int: Get the photo id from the request
+    :param current_user: User: Get the current user from the database
+    :param db: Session: Get the database session
+    :param token: str: Check if the token is blacklisted
+    :param : Get the photo id from the url
+    :return: The link for the image transformation
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     result = await create_link_transform_image(photo_id, current_user, db)
