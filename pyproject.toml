@@ -22,6 +22,7 @@ cloudinary = "^1.36.0"
 redis = "^5.0.1"
 pydantic-settings = "^2.0.3"
 qrcode = {extras = ["pil"], version = "^7.4.2"}
+sphinx = "^7.2.6"
 
 
 [tool.poetry.group.dev.dependencies]

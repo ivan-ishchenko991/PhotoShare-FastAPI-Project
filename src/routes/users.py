@@ -8,9 +8,12 @@ from src.schemas import UserDb, UserUpdate, AdminUserPatch
 from src.repository import users as repository_users
 from src.services.auth import auth_service
 from src.services.roles import RoleChecker
+
 router = APIRouter(prefix='/users', tags=["users"])
 
 allowed_roles_to_block = RoleChecker(["Administrator"])
+
+
 # загальна кількість фотографій у базі
 
 def get_user_photos_count(user_id: int, db: Session) -> int:
@@ -26,6 +29,20 @@ async def read_users_me(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+        Get information about the currently authenticated user.
+
+        Parameters:
+        - current_user (UserDb): The authenticated user obtained from the token.
+        - db (Session): SQLAlchemy database session for querying user data.
+        - token (str): OAuth2 token for user authentication.
+
+        Returns:
+        UserDb: User database model containing information about the authenticated user.
+
+        Raises:
+        HTTPException: If the provided token is blacklisted, returns a 401 UNAUTHORIZED error.
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     photos_count = get_user_photos_count(current_user.id, db)
@@ -34,14 +51,31 @@ async def read_users_me(
 
     return current_user
 
+
 @router.post("/block", dependencies=[Depends(allowed_roles_to_block)])
-async def blocking_user(user_email: str, 
+async def blocking_user(user_email: str,
                         current_user: User = Depends(auth_service.get_current_user),
                         db: Session = Depends(get_db),
                         token: str = Depends(auth_service.oauth2_scheme),
-):
-    await repository_users.block_user(user_email,db)
+                        ):
+    """
+        Block a user by email, restricting their access.
+
+        Parameters:
+        - user_email (str): Email of the user to be blocked.
+        - current_user (User): The authenticated user obtained from the token.
+        - db (Session): SQLAlchemy database session for blocking user in the database.
+        - token (str): OAuth2 token for user authentication.
+
+        Returns:
+        dict: A message indicating successful user blocking.
+
+        Raises:
+        HTTPException: If there are issues blocking the user or if the current user lacks the required permissions.
+    """
+    await repository_users.block_user(user_email, db)
     return {"message": "User blocked"}
+
 
 # Редагуємо профіль користувача
 
@@ -52,6 +86,21 @@ async def edit_user_profile(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+        Edit the profile of the currently authenticated user.
+
+        Parameters:
+        - user_update (UserUpdate): User data to be updated, including email, username, and password.
+        - current_user (UserDb): The authenticated user obtained from the token.
+        - db (Session): SQLAlchemy database session for updating user profile in the database.
+        - token (str): OAuth2 token for user authentication.
+
+        Returns:
+        Dict[str, str]: A message indicating successful data change.
+
+        Raises:
+        HTTPException: If the provided token is blacklisted, user is not found, or if there are conflicts during the update.
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     user = await repository_users.get_user_by_id(current_user.id, db)
@@ -91,6 +140,22 @@ async def patch_user_profile(
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
+    """
+        Partially update the profile of a user by their ID, with admin privileges.
+
+        Parameters:
+        - user_id (int): ID of the user to be patched.
+        - user_update (AdminUserPatch): Partial user data to be updated, including email, username, password, and is_active status.
+        - current_user (UserDb): The authenticated user obtained from the token with admin privileges.
+        - db (Session): SQLAlchemy database session for updating user profile in the database.
+        - token (str): OAuth2 token for user authentication.
+
+        Returns:
+        Dict[str, str]: A message indicating successful data change.
+
+        Raises:
+        HTTPException: If the provided token is blacklisted, user is not an administrator, user is not found, or if there are conflicts during the update.
+    """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
     if not current_user or "Administrator" not in current_user.roles.split(","):
