@@ -30,8 +30,8 @@ def init_cloudinary():
 def get_public_id_from_image_url(image_url: str) -> str:
     """
     The get_public_id_from_image_url function takes a Cloudinary image URL as input and returns the public ID of that
-    image. The public ID is the unique identifier for an image in your Cloudinary account. It is used to reference images
-    in all API calls, including when you upload them.
+    image. The public ID is the unique identifier for an image in your Cloudinary account. It is used to reference
+    images in all API calls, including when you upload them.
 
     :param image_url: str: Specify the image url that is passed into the function
     :return: The public id of the image
@@ -44,11 +44,10 @@ def get_public_id_from_image_url(image_url: str) -> str:
 
 def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User, db: Session) -> PhotoResponse:
     """
-    The create_user_photo function creates a new photo in the database.
-        Args:
-            photo (PhotoCreate): The PhotoCreate object containing the data to create a new Photo.
-            image (UploadFile): The UploadFile object containing the image file to upload and associate with this Photo.
-            current_user (User): The User object representing who is making this request, used for authorization purposes.
+    The create_user_photo function creates a new photo in the database. Args: photo (PhotoCreate): The PhotoCreate
+    object containing the data to create a new Photo. image (UploadFile): The UploadFile object containing the image
+    file to upload and associate with this Photo. current_user (User): The User object representing who is making
+    this request, used for authorization purposes.
 
     :param photo: PhotoCreate: Create a new photo object
     :param image: UploadFile: Get the image file from the request body
@@ -99,10 +98,12 @@ def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User,
 
 def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[PhotoResponse]:
     """
-    The get_user_photos function returns a list of PhotoResponse objects.
-    The function takes in the following parameters:
-        user_id (int): The id of the user whose photos we want to retrieve. If None, all photos are returned.
-        skip (int): The number of items to skip before returning results. Used for pagination purposes only. Defaults to 0 if not specified by caller or is less than 0; otherwise, it is set equal to the value passed in by caller and used as-is without modification/validation checks on its value beyond that already performed above via Python's type system and default parameter values mechanism).
+    The get_user_photos function returns a list of PhotoResponse objects. The function takes in the following
+    parameters: user_id (int): The id of the user whose photos we want to retrieve. If None, all photos are returned.
+    skip (int): The number of items to skip before returning results. Used for pagination purposes only. Defaults to
+    0 if not specified by caller or is less than 0; otherwise, it is set equal to the value passed in by caller and
+    used as-is without modification/validation checks on its value beyond that already performed above via Python's
+    type system and default parameter values mechanism).
 
 
     :param user_id: int: Filter the photos by user_id
@@ -173,12 +174,10 @@ def get_user_photo_by_id(photo_id: int, db: Session) -> Photo:
 
 def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: User, db: Session) -> PhotoResponse:
     """
-    The update_user_photo function updates a photo in the database.
-        Args:
-            photo (Photo): The Photo object to be updated.
-            updated_photo (PhotoUpdate): The new data for the Photo object.
-            current_user (User): The user who is updating the Photo object. This is used to ensure that only an owner of a
-                given resource can update it, and not just anyone with access to this function/endpoint/route.
+    The update_user_photo function updates a photo in the database. Args: photo (Photo): The Photo object to be
+    updated. updated_photo (PhotoUpdate): The new data for the Photo object. current_user (User): The user who is
+    updating the Photo object. This is used to ensure that only an owner of a given resource can update it,
+    and not just anyone with access to this function/endpoint/route.
 
     :param photo: Photo: Get the photo object from the database
     :param updated_photo: PhotoUpdate: Pass the updated photo data to the function
@@ -214,11 +213,10 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
 
 async def delete_user_photo(photo_id: int, user_id: int, is_admin: bool, db: Session):
     """
-    The delete_user_photo function deletes a photo from the database and Cloudinary.
-        Args:
-            photo_id (int): The id of the photo to be deleted.
-            user_id (int): The id of the user who is deleting this photo. This is used to check if they have permission to delete it or not.
-            is_admin (bool): Whether or not this user has admin privileges, which would allow them to delete any photos regardless of ownership status.
+    The delete_user_photo function deletes a photo from the database and Cloudinary. Args: photo_id (int): The id of
+    the photo to be deleted. user_id (int): The id of the user who is deleting this photo. This is used to check if
+    they have permission to delete it or not. is_admin (bool): Whether or not this user has admin privileges,
+    which would allow them to delete any photos regardless of ownership status.
 
     :param photo_id: int: Find the photo in the database
     :param user_id: int: Get the user's photos from the database

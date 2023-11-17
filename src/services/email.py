@@ -29,11 +29,11 @@ conf = ConnectionConfig(
 
 async def send_email(email: EmailStr, username: str, host: str):
     """
-    The send_email function sends an email to the user with a link to confirm their email address.
-        The function takes in three parameters:
-            -email: EmailStr, the user's email address.
-            -username: str, the username of the user who is registering for an account.  This will be used in a greeting message within the body of the email sent to them.
-            -host: str, this is where we are hosting our application (i.e., localhost).  This will be used as part of a URL that they can click on within their browser.
+    The send_email function sends an email to the user with a link to confirm their email address. The function takes
+    in three parameters: -email: EmailStr, the user's email address. -username: str, the username of the user who is
+    registering for an account.  This will be used in a greeting message within the body of the email sent to them.
+    -host: str, this is where we are hosting our application (i.e., localhost).  This will be used as part of a URL
+    that they can click on within their browser.
 
     :param email: EmailStr: Specify the email address of the recipient
     :param username: str: Pass in the username of the user who is trying to register

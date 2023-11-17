@@ -68,8 +68,9 @@ class Auth:
 
     async def get_email_from_token(self, token: str):
         """
-        The get_email_from_token function takes a token as an argument and returns the email address associated with that token.
-        The function uses the jwt library to decode the token, which is then used to return the email address.
+        The get_email_from_token function takes a token as an argument and returns the email address associated with
+        that token. The function uses the jwt library to decode the token, which is then used to return the email
+        address.
 
         :param self: Represent the instance of the class
         :param token: str: Decode the token
@@ -129,9 +130,9 @@ class Auth:
 
     async def decode_refresh_token(self, refresh_token: str):
         """
-        The decode_refresh_token function is used to decode the refresh token.
-        It takes a refresh_token as an argument and returns the email of the user if it's valid.
-        If not, it raises an HTTPException with status code 401 (UNAUTHORIZED) and detail 'Could not validate credentials'.
+        The decode_refresh_token function is used to decode the refresh token. It takes a refresh_token as an
+        argument and returns the email of the user if it's valid. If not, it raises an HTTPException with status code
+        401 (UNAUTHORIZED) and detail 'Could not validate credentials'.
 
 
         :param self: Represent the instance of the class

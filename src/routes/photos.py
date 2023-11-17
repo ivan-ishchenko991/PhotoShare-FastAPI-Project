@@ -61,9 +61,9 @@ async def create_qr_code(photo_id: int,
                          token: str = Depends(auth_service.oauth2_scheme),
                          ):
     """
-    The create_qr_code function creates a QR code for the photo with the given ID.
-    The function requires that a valid token be passed in as an authorization header, and it will return an error if no such token is found or if the token is blacklisted.
-    If no photo with the given ID exists, then this function will return a 404 Not Found error.
+    The create_qr_code function creates a QR code for the photo with the given ID. The function requires that a valid
+    token be passed in as an authorization header, and it will return an error if no such token is found or if the
+    token is blacklisted. If no photo with the given ID exists, then this function will return a 404 Not Found error.
 
     :param photo_id: int: Get the photo from the database
     :param current_user: User: Get the user that is currently logged in
@@ -120,13 +120,12 @@ async def get_user_photo_by_id(
         token: str = Depends(auth_service.oauth2_scheme),
 ):
     """
-    The get_user_photo_by_id function is used to get a specific photo by its id.
-        The function takes the following parameters:
-            - photo_id: int, required, unique identifier of the photo to be retrieved.
-            - current_user: User object containing information about the user making this request (optional).
-                This parameter is automatically passed in when using an access token with this endpoint. If no access token
-                is provided or if it has expired, then current_user will not be populated and you will receive a 401 error
-                response from FastAPI indicating that there was a problem with authentication. You can use Post
+    The get_user_photo_by_id function is used to get a specific photo by its id. The function takes the following
+    parameters: - photo_id: int, required, unique identifier of the photo to be retrieved. - current_user: User
+    object containing information about the user making this request (optional). This parameter is automatically
+    passed in when using an access token with this endpoint. If no access token is provided or if it has expired,
+    then current_user will not be populated and you will receive a 401 error response from FastAPI indicating that
+    there was a problem with authentication. You can use Post
 
     :param photo_id: int: Specify the photo id
     :param current_user: User: Get the current user
@@ -264,11 +263,10 @@ async def photo_transformation(
         token: str = Depends(auth_service.oauth2_scheme),
 ):
     """
-    The photo_transformation function is responsible for transforming the image.
-        It takes in a photo_id, body and current_user as parameters.
-        The photo_id parameter is used to find the image that needs to be transformed.
-        The body parameter contains all of the transformation information needed to transform an image (e.g., rotation angle).
-        The current user is used for authentication purposes.
+    The photo_transformation function is responsible for transforming the image. It takes in a photo_id,
+    body and current_user as parameters. The photo_id parameter is used to find the image that needs to be
+    transformed. The body parameter contains all of the transformation information needed to transform an image (
+    e.g., rotation angle). The current user is used for authentication purposes.
 
     :param photo_id: int: Get the photo from the database by its id
     :param body: TransformBodyModel: Get the data from the request body

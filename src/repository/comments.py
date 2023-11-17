@@ -5,11 +5,11 @@ from src.schemas import CommentBase
 
 async def create_comment(comment: CommentBase, photo_id: int, current_user: User, db: Session):
     """
-    The create_comment function creates a new comment in the database.
-        Args:
-            comment (CommentBase): The CommentBase object to be created.
-            photo_id (int): The id of the photo that this comment is associated with.
-            current_user (User): The user who is creating this comment. This will be used to set the author of the new Comment object, and also for authorization purposes later on in our codebase when we want to make sure that only authorized users can delete comments they have created themselves.
+    The create_comment function creates a new comment in the database. Args: comment (CommentBase): The CommentBase
+    object to be created. photo_id (int): The id of the photo that this comment is associated with. current_user (
+    User): The user who is creating this comment. This will be used to set the author of the new Comment object,
+    and also for authorization purposes later on in our codebase when we want to make sure that only authorized users
+    can delete comments they have created themselves.
 
     :param comment: CommentBase: Pass in the comment object that is created by the user
     :param photo_id: int: Identify the photo that the comment is being made on

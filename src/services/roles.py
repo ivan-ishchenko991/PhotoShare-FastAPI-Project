@@ -7,9 +7,9 @@ from src.services.auth import auth_service
 class RoleChecker:
     def __init__(self, allowed_roles: List[str]):
         """
-        The __init__ function is called when the class is instantiated.
-        It sets up the instance of the class, and allows us to pass in parameters that will be used by other functions in our class.
-        In this case, we are passing a list of strings representing roles that are allowed to use this command.
+        The __init__ function is called when the class is instantiated. It sets up the instance of the class,
+        and allows us to pass in parameters that will be used by other functions in our class. In this case,
+        we are passing a list of strings representing roles that are allowed to use this command.
 
         :param self: Represent the instance of the class
         :param allowed_roles: List[str]: Define the allowed roles for a user

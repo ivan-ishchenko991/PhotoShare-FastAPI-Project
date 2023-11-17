@@ -98,8 +98,8 @@ async def edit_user_profile(
         Returns:
         Dict[str, str]: A message indicating successful data change.
 
-        Raises:
-        HTTPException: If the provided token is blacklisted, user is not found, or if there are conflicts during the update.
+        Raises: HTTPException: If the provided token is blacklisted, user is not found, or if there are conflicts
+        during the update.
     """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
@@ -143,18 +143,16 @@ async def patch_user_profile(
     """
         Partially update the profile of a user by their ID, with admin privileges.
 
-        Parameters:
-        - user_id (int): ID of the user to be patched.
-        - user_update (AdminUserPatch): Partial user data to be updated, including email, username, password, and is_active status.
-        - current_user (UserDb): The authenticated user obtained from the token with admin privileges.
-        - db (Session): SQLAlchemy database session for updating user profile in the database.
-        - token (str): OAuth2 token for user authentication.
+        Parameters: - user_id (int): ID of the user to be patched. - user_update (AdminUserPatch): Partial user data
+        to be updated, including email, username, password, and is_active status. - current_user (UserDb): The
+        authenticated user obtained from the token with admin privileges. - db (Session): SQLAlchemy database session
+        for updating user profile in the database. - token (str): OAuth2 token for user authentication.
 
         Returns:
         Dict[str, str]: A message indicating successful data change.
 
-        Raises:
-        HTTPException: If the provided token is blacklisted, user is not an administrator, user is not found, or if there are conflicts during the update.
+        Raises: HTTPException: If the provided token is blacklisted, user is not an administrator, user is not found,
+        or if there are conflicts during the update.
     """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")

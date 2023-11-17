@@ -126,9 +126,9 @@ async def request_email(body: RequestEmail, background_tasks: BackgroundTasks, r
 @router.get('/refresh_token', response_model=TokenModel)
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
     """
-    The refresh_token function is used to refresh the access token.
-        The function takes in a refresh token and returns an access_token, a new refresh_token, and the type of token.
-        If the user's current refresh_token does not match what was passed into this function then it will return an error.
+    The refresh_token function is used to refresh the access token. The function takes in a refresh token and returns
+    an access_token, a new refresh_token, and the type of token. If the user's current refresh_token does not match
+    what was passed into this function then it will return an error.
 
     :param credentials: HTTPAuthorizationCredentials: Get the token from the request header
     :param db: Session: Get the database session

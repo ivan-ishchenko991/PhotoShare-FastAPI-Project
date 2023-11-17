@@ -1,8 +1,8 @@
 [tool.poetry]
-name = "instagram-fastapi-project"
+name = "cat-captures-fastapi-project"
 version = "0.1.0"
 description = ""
-authors = ["ivan-ishchenko991 <lvan.lshchenko19.01@gmail.com>"]
+authors = ["CtCaptures_team"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -22,7 +22,6 @@ cloudinary = "^1.36.0"
 redis = "^5.0.1"
 pydantic-settings = "^2.0.3"
 qrcode = {extras = ["pil"], version = "^7.4.2"}
-sphinx = "^7.2.6"
 
 
 [tool.poetry.group.dev.dependencies]
