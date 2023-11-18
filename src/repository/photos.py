@@ -1,17 +1,15 @@
 from datetime import datetime
-
+from typing import List
 from fastapi import UploadFile
 import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.uploader import destroy
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from fastapi.exceptions import HTTPException
 
-from src.database.models import Photo, User, Tag
+from src.database.models import Photo, User, Tag, Comment
 from src.conf.config import settings
-from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse
-
-
+from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse,PhotoResponseAll
 def init_cloudinary():
     """
     The init_cloudinary function is used to initialize the cloudinary library with
@@ -26,6 +24,32 @@ def init_cloudinary():
         secure=True
     )
 
+async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
+    photos = (
+        db.query(Photo)
+        .join(User)
+        .options(joinedload(Photo.user))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    photos_with_username = [
+        PhotoResponseAll(
+            id=photo.id,
+            image_url=photo.image_url,
+            qr_transform=photo.qr_transform,
+            likes=photo.likes,
+            description=photo.description,
+            photo_owner=photo.user.username,  
+            created_at=photo.created_at,
+            updated_at=photo.updated_at,
+            tags=photo.tags
+        )
+        for photo in photos
+    ]
+
+    return photos_with_username
 
 def get_public_id_from_image_url(image_url: str) -> str:
     """
@@ -122,6 +146,7 @@ def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[Ph
         id=photo.id,
         image_url=photo.image_url,
         qr_transform=photo.qr_transform,
+        likes=photo.likes,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -151,6 +176,7 @@ def get_user_photo_by_id(photo_id: int, db: Session, current_user: User) -> Phot
         id=photo.id,
         image_url=photo.image_url,
         qr_transform=photo.qr_transform,
+        likes = photo.likes,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -204,6 +230,7 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
         id=photo.id,
         image_url=photo.image_url,
         qr_transform=photo.qr_transform,
+        likes = photo.likes,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,

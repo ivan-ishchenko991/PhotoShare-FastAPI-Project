@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, func, Table, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, func, Table, Text, ForeignKey, ARRAY
 import enum
 from sqlalchemy import Column, Integer, String, DateTime, func, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, relationship
@@ -46,6 +46,8 @@ class Photo(Base):
     tags = relationship('Tag', secondary=photo_2_tag, backref='photos')
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now)
+    likes = Column(Integer, default=0)
+    who_liked = Column(String, default="")
     # Зовнішній ключ для зв'язку з користувачем
     user_id = Column(Integer, ForeignKey("users.id", ondelete='CASCADE'), default=None)
     image_transform = Column(String(200), nullable=True)

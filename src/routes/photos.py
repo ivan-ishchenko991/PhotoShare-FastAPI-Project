@@ -8,7 +8,7 @@ from src.schemas import (
     PhotoUpdate,
     PhotoResponse,
     PhotoListResponse,
-    TagResponse, TransformBodyModel, PhotoTransform, PhotoLinkTransform,
+    TagResponse, TransformBodyModel, PhotoTransform, PhotoLinkTransform,PhotoListResponseAll
 )
 from src.services.auth import auth_service
 from src.database.connect import get_db
@@ -20,6 +20,11 @@ from src.services.photos import transform_image, create_link_transform_image
 router = APIRouter(prefix='/photos', tags=["photos"])
 security = HTTPBearer()
 
+
+@router.get("/all_photos", response_model=PhotoListResponseAll)
+async def get_all_photos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    photos = await repository_photos.get_all_photos(skip, limit, db)
+    return {"photos": photos}
 
 @router.post("/", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_photo(
@@ -156,6 +161,7 @@ async def get_user_photo_by_id(
         id=photo.id,
         image_url=photo.image_url,
         qr_transform=photo.qr_transform,
+        likes = photo.likes,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
