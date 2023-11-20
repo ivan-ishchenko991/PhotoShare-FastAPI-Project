@@ -4,12 +4,16 @@ from fastapi import UploadFile
 import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.uploader import destroy
+from sqlalchemy import and_
 from sqlalchemy.orm import Session, joinedload
 from fastapi.exceptions import HTTPException
 
-from src.database.models import Photo, User, Tag, Comment
+from src.database.models import Photo, User, Tag, Comment, photo_2_tag
 from src.conf.config import settings
-from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse,PhotoResponseAll
+from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse, PhotoResponseAll, \
+    PhotoFilter
+
+
 def init_cloudinary():
     """
     The init_cloudinary function is used to initialize the cloudinary library with
@@ -23,6 +27,7 @@ def init_cloudinary():
         api_secret=settings.cloudinary_api_secret,
         secure=True
     )
+
 
 async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
     photos = (
@@ -41,7 +46,7 @@ async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
             qr_transform=photo.qr_transform,
             likes=photo.likes,
             description=photo.description,
-            photo_owner=photo.user.username,  
+            photo_owner=photo.user.username,
             created_at=photo.created_at,
             updated_at=photo.updated_at,
             tags=photo.tags
@@ -50,6 +55,7 @@ async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
     ]
 
     return photos_with_username
+
 
 def get_public_id_from_image_url(image_url: str) -> str:
     """
@@ -176,7 +182,7 @@ def get_user_photo_by_id(photo_id: int, db: Session, current_user: User) -> Phot
         id=photo.id,
         image_url=photo.image_url,
         qr_transform=photo.qr_transform,
-        likes = photo.likes,
+        likes=photo.likes,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -230,12 +236,36 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
         id=photo.id,
         image_url=photo.image_url,
         qr_transform=photo.qr_transform,
-        likes = photo.likes,
+        likes=photo.likes,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
         tags=[TagResponse(id=tag.id, title=tag.title, created_at=tag.created_at) for tag in photo.tags]
     )
+
+
+async def search_photos(description: str, tag: str, photo_filter: PhotoFilter, db: Session):
+    if description and tag:
+        photos = db.query(Photo).join(photo_2_tag.tag_id).join(Tag.id).filter(
+            and_(Photo.description == description, Photo.tags == tag)
+        ).all()
+    elif description and (not tag):
+        photos = db.query(Photo).filter(
+            Photo.description == description
+        ).all()
+    elif tag and (not description):
+        photos = db.query(Photo).join(photo_2_tag).join(Tag).filter(
+            Tag.title == tag
+        ).all()
+    else:
+        photos = db.query(Photo).all()
+
+    if photo_filter.filter is not None:
+        query = photo_filter.filter(photos)
+        query = photo_filter.sort(query)
+        return query
+    else:
+        return photos
 
 
 async def delete_user_photo(photo_id: int, user_id: int, is_admin: bool, db: Session):
