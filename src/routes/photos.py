@@ -23,13 +23,31 @@ security = HTTPBearer()
 
 @router.get("/all_photos", response_model=PhotoListResponseAll)
 async def get_all_photos(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    The get_all_photos function returns a list of all photos in the database.
+
+    :param skip: int: Skip the first n photos in the database
+    :param limit: int: Limit the number of photos returned
+    :param db: Session: Pass the database session to the repository layer
+    :return: A list of photos
+    """
     photos = await repository_photos.get_all_photos(skip, limit, db)
     return {"photos": photos}
 
+
 @router.get("/top_photos", response_model=PhotoListResponseAll)
-async def get_top_photos(skip: int = 0, limit: int= 20, db: Session = Depends(get_db)):
-    photos  = await repository_photos.get_top_photos(skip, limit,db)
+async def get_top_photos(skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
+    """
+    The get_top_photos function returns the top photos in the database.
+
+    :param skip: int: Skip the first n photos
+    :param limit: int: Limit the number of photos returned
+    :param db: Session: Pass the database session to the function
+    :return: A list of photos
+    """
+    photos = await repository_photos.get_top_photos(skip, limit, db)
     return {"photos": photos}
+
 
 @router.post("/", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_photo(
@@ -166,7 +184,7 @@ async def get_user_photo_by_id(
         id=photo.id,
         image_url=photo.image_url,
         qr_transform=photo.qr_transform,
-        likes = photo.likes,
+        likes=photo.likes,
         description=photo.description,
         created_at=photo.created_at,
         updated_at=photo.updated_at,
@@ -219,12 +237,27 @@ async def update_user_photo(
 
 @router.get("/search/", response_model=List[PhotoResponse])
 async def search_photos(
-    description: str = Query(None, description='Searching photos by description'),
-    tag: str = Query(None, description='Searching photos by tags'),
-    username: str = Query(None, description='Searching photos by username'),
-    current_user: User = Depends(auth_service.get_current_user),
-    db: Session = Depends(get_db),
+        description: str = Query(None, description='Searching photos by description'),
+        tag: str = Query(None, description='Searching photos by tags'),
+        username: str = Query(None, description='Searching photos by username'),
+        current_user: User = Depends(auth_service.get_current_user),
+        db: Session = Depends(get_db),
 ):
+    """
+    The search_photos function searches for photos by description, tag, or username.
+        If the user is an admin, they can search all photos. Otherwise they can only search their own.
+
+    :param description: str: Search for a photo by description
+    :param description: Search for photos by description
+    :param tag: str: Search for photos by tag
+    :param description: Search photos by description
+    :param username: str: Search photos by username
+    :param description: Search for photos by description
+    :param current_user: User: Get the current user from the database
+    :param db: Session: Access the database
+    :param : Get the current user
+    :return: A list of photos that match the search criteria
+    """
     is_admin = "Administrator" in current_user.roles.split(",")
 
     photos = await repository_photos.search_photos(description, tag, username, is_admin, db)

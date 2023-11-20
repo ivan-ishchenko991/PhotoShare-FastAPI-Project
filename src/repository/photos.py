@@ -29,6 +29,18 @@ def init_cloudinary():
 
 
 async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
+    """
+    The get_all_photos function returns a list of all photos in the database.
+        Args:
+            skip (int): The number of photos to skip before returning results.
+            limit (int): The maximum number of photos to return.
+
+    :param skip: int: Skip a certain number of photos
+    :param limit: int: Limit the number of photos returned in a single request
+    :param db: Session: Pass the database session to the function
+    :return: A list of photoresponseall objects
+    :doc-author: Trelent
+    """
     photos = (
         db.query(Photo)
         .join(User)
@@ -57,6 +69,18 @@ async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
 
 
 async def get_top_photos(skip: int, limit: int, db: Session) -> List[Photo]:
+    """
+    The get_top_photos function returns a list of photos with the most likes.
+        Args:
+            skip (int): The number of photos to skip before returning results.
+            limit (int): The maximum number of photos to return.
+
+    :param skip: int: Skip a certain number of photos in the database
+    :param limit: int: Limit the number of photos returned
+    :param db: Session: Pass in the database session
+    :return: A list of photos with the username of the owner
+    :doc-author: Trelent
+    """
     photos = (
         db.query(Photo)
         .join(User)
@@ -273,6 +297,20 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
 
 
 async def search_photos(description: str, tag: str, user: str, is_admin: bool, db: Session):
+    """
+    The search_photos function searches for photos in the database.
+        It takes a description, tag, and user as arguments. If all three are provided, it will search for photos with that
+        description and tag by that user. If only two of the three are provided (description and tag or description and
+        user), it will search for photos with that combination of attributes. If only one is provided (description or
+        tag or username), it will search for all photos matching just that attribute.
+
+    :param description: str: Search for photos with a specific description
+    :param tag: str: Filter the photos by tag
+    :param user: str: Filter photos by user
+    :param is_admin: bool: Check if the user is an admin
+    :param db: Session: Pass the database session to the function
+    :return: A list of photos
+    """
     if description and tag:
         photos = db.query(Photo).join(photo_2_tag).join(Tag).order_by(desc(Photo.created_at)).filter(
             and_(Photo.description == description, Tag.title == tag)
