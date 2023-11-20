@@ -13,6 +13,7 @@ router = APIRouter(prefix='/users', tags=["users"])
 
 allowed_roles_to_block = RoleChecker(["Administrator"])
 allowed_roles_to_change_role = RoleChecker(["Administrator"])
+allowed_roles_to_delete_like = RoleChecker(["Administrator","Moderator"])
 
 # загальна кількість фотографій у базі
 
@@ -70,6 +71,18 @@ async def remove_like(photo_id:int,
     if result == "NOT OK":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You have already unliked this photo")
     return {"message": "You have removed a like from a photo"}
+
+@router.patch("/admin_moder_dislike", dependencies=[Depends(allowed_roles_to_delete_like)])
+async def delete_someones_like(user_email: str,
+                               photo_id:int,
+                               current_user: User = Depends(auth_service.get_current_user),
+                               db: Session = Depends(get_db)
+):
+    result = await repository_users.delete_like_admin_moder(user_email,photo_id, db)
+    if result == "NOT OK":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"The user {user_email} did not like this photo!")
+    return {"message": f"The user's ({user_email}) like has been removed from the photo {photo_id}!"}
+
 
 @router.post("/block", dependencies=[Depends(allowed_roles_to_block)])
 async def blocking_user(user_email: str,

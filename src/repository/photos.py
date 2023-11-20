@@ -56,6 +56,35 @@ async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
     return photos_with_username
 
 
+async def get_top_photos(skip: int, limit: int, db: Session) -> List[Photo]:
+    photos = (
+        db.query(Photo)
+        .join(User)
+        .options(joinedload(Photo.user))
+        .order_by(desc(Photo.likes))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    photos_with_username = [
+        PhotoResponseAll(
+            id=photo.id,
+            image_url=photo.image_url,
+            qr_transform=photo.qr_transform,
+            likes=photo.likes,
+            description=photo.description,
+            photo_owner=photo.user.username,  
+            created_at=photo.created_at,
+            updated_at=photo.updated_at,
+            tags=photo.tags
+        )
+        for photo in photos
+    ]
+
+    return photos_with_username
+
+
 def get_public_id_from_image_url(image_url: str) -> str:
     """
     The get_public_id_from_image_url function takes a Cloudinary image URL as input and returns the public ID of that
