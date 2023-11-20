@@ -223,7 +223,7 @@ async def search_photos(
     is_admin = "Administrator" in current_user.roles.split(",")
 
     photos = await repository_photos.search_photos(description, tag, username, is_admin, db)
-    if photos is None:
+    if (photos is None) or photos == []:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
     return photos
 
