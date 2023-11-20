@@ -114,7 +114,7 @@ async def put_a_like(photo_id:int,current_user, db:Session):
     photo = db.query(Photo).filter(Photo.id == photo_id).first()
     if current_user.email not in photo.who_liked:
         photo.likes += 1
-        photo.who_liked += f",{current_user.email}"
+        photo.who_liked += f"{current_user.email},"
         db.commit()
         db.refresh(photo)
         return "OK"
@@ -125,9 +125,20 @@ async def dislike(photo_id:int,current_user, db:Session):
     photo = db.query(Photo).filter(Photo.id == photo_id).first()
     if current_user.email in photo.who_liked:
         photo.likes -= 1
-        photo.who_liked = photo.who_liked.replace(f",{current_user.email}", "")
+        photo.who_liked = photo.who_liked.replace(f"{current_user.email},", "")
         db.commit()
         db.refresh(photo)
         return "OK"
     else:
         return "NOT OK"
+    
+async  def delete_like_admin_moder(user_email:str,photo_id:int, db:Session):
+    photo = db.query(Photo).filter(Photo.id == photo_id).first()
+    if user_email not in photo.who_liked:
+        return "NOT OK"
+    else:
+        photo.likes -= 1
+        photo.who_liked = photo.who_liked.replace(f"{user_email},", "")
+        db.commit()
+        db.refresh(photo)
+        return "OK"

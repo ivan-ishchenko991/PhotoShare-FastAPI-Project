@@ -6,7 +6,7 @@ from cloudinary.uploader import upload
 from cloudinary.uploader import destroy
 from sqlalchemy.orm import Session, joinedload
 from fastapi.exceptions import HTTPException
-
+from sqlalchemy import desc
 from src.database.models import Photo, User, Tag, Comment
 from src.conf.config import settings
 from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse,PhotoResponseAll
@@ -29,6 +29,34 @@ async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
         db.query(Photo)
         .join(User)
         .options(joinedload(Photo.user))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    photos_with_username = [
+        PhotoResponseAll(
+            id=photo.id,
+            image_url=photo.image_url,
+            qr_transform=photo.qr_transform,
+            likes=photo.likes,
+            description=photo.description,
+            photo_owner=photo.user.username,  
+            created_at=photo.created_at,
+            updated_at=photo.updated_at,
+            tags=photo.tags
+        )
+        for photo in photos
+    ]
+
+    return photos_with_username
+
+async def get_top_photos(skip: int, limit: int, db: Session) -> List[Photo]:
+    photos = (
+        db.query(Photo)
+        .join(User)
+        .options(joinedload(Photo.user))
+        .order_by(desc(Photo.likes))
         .offset(skip)
         .limit(limit)
         .all()

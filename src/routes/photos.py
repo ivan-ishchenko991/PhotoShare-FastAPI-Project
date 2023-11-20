@@ -26,6 +26,11 @@ async def get_all_photos(skip: int = 0, limit: int = 100, db: Session = Depends(
     photos = await repository_photos.get_all_photos(skip, limit, db)
     return {"photos": photos}
 
+@router.get("/top_photos", response_model=PhotoListResponseAll)
+async def get_top_photos(skip: int = 0, limit: int= 20, db: Session = Depends(get_db)):
+    photos  = await repository_photos.get_top_photos(skip, limit,db)
+    return {"photos": photos}
+
 @router.post("/", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
 async def create_user_photo(
         image: UploadFile = File(...),
