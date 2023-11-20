@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import List, Optional
 from enum import Enum
 
-from fastapi_filter.contrib.sqlalchemy import Filter
 from pydantic import BaseModel, EmailStr, Field, constr, SecretStr, validator
 from datetime import datetime
 
@@ -142,15 +141,6 @@ class TransformBodyModel(BaseModel):
     resize: TransformResizeModel
     text: TransformTextModel
     rotate: TransformRotateModel
-
-
-# Model for filtering result
-class PhotoFilter(Filter):
-    order_by: Optional[list[str]] = None
-
-    class Constants(Filter.Constants):
-        model = Photo
-        search_model_fields = ["description", "created_at", "updated_at"]
 
 
 class PhotoResponse(BaseModel):

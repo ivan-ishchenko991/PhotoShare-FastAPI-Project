@@ -1,6 +1,5 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Form, File, UploadFile, Query
-from fastapi_filter import FilterDepends
 from sqlalchemy.orm import Session
 from fastapi.security import HTTPBearer
 
@@ -9,7 +8,7 @@ from src.schemas import (
     PhotoUpdate,
     PhotoResponse,
     PhotoListResponse,
-    TagResponse, TransformBodyModel, PhotoTransform, PhotoLinkTransform, PhotoListResponseAll, PhotoFilter
+    TagResponse, TransformBodyModel, PhotoTransform, PhotoLinkTransform, PhotoListResponseAll
 )
 from src.services.auth import auth_service
 from src.database.connect import get_db
@@ -217,11 +216,13 @@ async def update_user_photo(
 async def search_photos(
     description: str = Query(None, description='Searching photos by description'),
     tag: str = Query(None, description='Searching photos by tags'),
-    photo_filter: PhotoFilter = FilterDepends(PhotoFilter),
+    username: str = Query(None, description='Searching photos by username'),
     current_user: User = Depends(auth_service.get_current_user),
     db: Session = Depends(get_db),
 ):
-    photos = await repository_photos.search_photos(description, tag, photo_filter, db)
+    is_admin = "Administrator" in current_user.roles.split(",")
+
+    photos = await repository_photos.search_photos(description, tag, username, is_admin, db)
     if photos is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not Found")
     return photos

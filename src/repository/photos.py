@@ -4,14 +4,13 @@ from fastapi import UploadFile
 import cloudinary
 from cloudinary.uploader import upload
 from cloudinary.uploader import destroy
-from sqlalchemy import and_
+from sqlalchemy import and_, desc
 from sqlalchemy.orm import Session, joinedload
 from fastapi.exceptions import HTTPException
 
 from src.database.models import Photo, User, Tag, Comment, photo_2_tag
 from src.conf.config import settings
-from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse, PhotoResponseAll, \
-    PhotoFilter
+from src.schemas import PhotoCreate, PhotoUpdate, PhotoListResponse, TagResponse, PhotoResponse, PhotoResponseAll
 
 
 def init_cloudinary():
@@ -244,28 +243,29 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
     )
 
 
-async def search_photos(description: str, tag: str, photo_filter: PhotoFilter, db: Session):
+async def search_photos(description: str, tag: str, user: str, is_admin: bool, db: Session):
     if description and tag:
-        photos = db.query(Photo).join(photo_2_tag.tag_id).join(Tag.id).filter(
-            and_(Photo.description == description, Photo.tags == tag)
+        photos = db.query(Photo).join(photo_2_tag).join(Tag).order_by(desc(Photo.created_at)).filter(
+            and_(Photo.description == description, Tag.title == tag)
         ).all()
     elif description and (not tag):
-        photos = db.query(Photo).filter(
+        photos = db.query(Photo).order_by(desc(Photo.created_at)).filter(
             Photo.description == description
         ).all()
     elif tag and (not description):
-        photos = db.query(Photo).join(photo_2_tag).join(Tag).filter(
+        photos = db.query(Photo).join(photo_2_tag).join(Tag).order_by(desc(Photo.created_at)).filter(
             Tag.title == tag
         ).all()
+    elif user and (not description) and (not tag):
+        if not is_admin:
+            raise HTTPException(status_code=403, detail="Permission denied")
+        photos = db.query(Photo).join(User).order_by(desc(Photo.created_at)).filter(
+            User.username == user
+        ).all()
     else:
-        photos = db.query(Photo).all()
+        photos = db.query(Photo).order_by(desc(Photo.created_at)).all()
 
-    if photo_filter.filter is not None:
-        query = photo_filter.filter(photos)
-        query = photo_filter.sort(query)
-        return query
-    else:
-        return photos
+    return photos
 
 
 async def delete_user_photo(photo_id: int, user_id: int, is_admin: bool, db: Session):
