@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Query
 from typing import Dict
 from sqlalchemy.orm import Session
 from src.database.connect import get_db
-from src.database.models import User, Photo
+from src.database.models import User, Photo, Roles
 from src.repository.photos import get_user_photos
 from src.schemas import UserDb, UserUpdate, AdminUserPatch
 from src.repository import users as repository_users
@@ -12,7 +12,7 @@ from src.services.roles import RoleChecker
 router = APIRouter(prefix='/users', tags=["users"])
 
 allowed_roles_to_block = RoleChecker(["Administrator"])
-
+allowed_roles_to_change_role = RoleChecker(["Administrator"])
 
 # загальна кількість фотографій у базі
 
@@ -51,6 +51,25 @@ async def read_users_me(
 
     return current_user
 
+@router.patch("/like")
+async def put_like(photo_id:int,
+                   current_user: User = Depends(auth_service.get_current_user),
+                   db: Session = Depends(get_db),
+):
+    result = await repository_users.put_a_like(photo_id,current_user,db)
+    if result == "NOT OK":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You have already liked this photo")
+    return {"message": "You have successfully liked a photo"}
+
+@router.patch("/remove_like")
+async def remove_like(photo_id:int,
+                   current_user: User = Depends(auth_service.get_current_user),
+                   db: Session = Depends(get_db),
+):
+    result = await repository_users.dislike(photo_id,current_user,db)
+    if result == "NOT OK":
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You have already unliked this photo")
+    return {"message": "You have removed a like from a photo"}
 
 @router.post("/block", dependencies=[Depends(allowed_roles_to_block)])
 async def blocking_user(user_email: str,
@@ -76,6 +95,19 @@ async def blocking_user(user_email: str,
     await repository_users.block_user(user_email, db)
     return {"message": "User blocked"}
 
+
+@router.patch("/change_role", dependencies=[Depends(allowed_roles_to_change_role)])
+async def change_role(user_email: str,
+                      role:Roles = Query(..., description="User role"),
+                      current_user: User = Depends(auth_service.get_current_user),
+                      db: Session = Depends(get_db)
+):
+    print(role)
+    result = await repository_users.change_role(user_email,role,db)
+    if result == "NOT OK":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Changing role for admin is forbidden")
+    return {"message": "User role changed"}
+    
 
 # Редагуємо профіль користувача
 

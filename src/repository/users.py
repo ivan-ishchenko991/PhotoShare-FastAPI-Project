@@ -1,7 +1,7 @@
 from typing import List, Optional 
 from libgravatar import Gravatar 
 from sqlalchemy.orm import Session 
-from src.database.models import User 
+from src.database.models import User,Roles,Photo
 from src.schemas import UserModel 
 
 
@@ -99,3 +99,35 @@ async def block_user(user_email:str, db: Session) -> None:
     result.is_banned = True
     db.commit()         
     db.refresh(result)
+
+async def change_role(user_email:str,role:Roles, db:Session):
+    user = await get_user_by_email(user_email,db)
+    if user.roles != Roles.admin:
+        user.roles = role
+        db.commit()
+        db.refresh(user)
+        return "OK"
+    else:
+        return "NOT OK"
+    
+async def put_a_like(photo_id:int,current_user, db:Session):
+    photo = db.query(Photo).filter(Photo.id == photo_id).first()
+    if current_user.email not in photo.who_liked:
+        photo.likes += 1
+        photo.who_liked += f",{current_user.email}"
+        db.commit()
+        db.refresh(photo)
+        return "OK"
+    else:
+        return "NOT OK"
+    
+async def dislike(photo_id:int,current_user, db:Session):
+    photo = db.query(Photo).filter(Photo.id == photo_id).first()
+    if current_user.email in photo.who_liked:
+        photo.likes -= 1
+        photo.who_liked = photo.who_liked.replace(f",{current_user.email}", "")
+        db.commit()
+        db.refresh(photo)
+        return "OK"
+    else:
+        return "NOT OK"
