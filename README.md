@@ -44,7 +44,7 @@ This project exposes 20+ endpoints through a REST API. To access these APIs, use
     <a style="font-size: 16px" href="https://github.com/ivan-ishchenko991"><b>Ivan Ishchenko</b></a><br>
     <a style="font-size: 16px" href="https://github.com/Vadim-3"><b>Vadim Bezhuk</b></a><br>
     <a style="font-size: 16px" href="https://github.com/9-Bogdan"><b>Bogdan Kataryna</b></a><br>
-    <a style="font-size: 16px" href="https://github.com/chychur"><b>Andrii Mykhailiuk</b></a><br>
+    <a style="font-size: 16px" href="https://github.com/Andriy22226"><b>Andriy Mykhailyuk</b></a><br>
     <a style="font-size: 16px" href="https://github.com/MsMiracle18"><b>Valeria Tovstenko</b></a>
 </div>
 
