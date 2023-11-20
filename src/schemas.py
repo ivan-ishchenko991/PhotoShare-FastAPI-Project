@@ -1,8 +1,11 @@
 from datetime import datetime
 from typing import List, Optional
 from enum import Enum
+
 from pydantic import BaseModel, EmailStr, Field, constr, SecretStr, validator
 from datetime import datetime
+
+from src.database.models import Photo
 
 
 class UserModel(BaseModel):
@@ -153,20 +156,26 @@ class PhotoResponse(BaseModel):
 
 class PhotoListResponse(BaseModel):
     photos: List[PhotoResponse]
-#schemas for function only "get_all_photos"
+
+
+# schemas for function only "get_all_photos"
 class PhotoResponseAll(BaseModel):
     id: int
     image_url: str
     qr_transform: Optional[str]
     likes: Optional[int] = 0
     description: str
-    photo_owner:str
+    photo_owner: str
     created_at: datetime
     updated_at: datetime
     tags: List[TagResponse]
+
+
 class PhotoListResponseAll(BaseModel):
     photos: List[PhotoResponseAll]
-#end
+
+
+# end
 
 class CommentBase(BaseModel):
     text: str = Field(max_length=500)
