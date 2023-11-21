@@ -1,9 +1,11 @@
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 
+import cloudinary
 from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
+from src.conf.config import settings
 from src.database.models import Photo, User
 from src.schemas import PhotoResponse, PhotoResponseAll, UserResponse, PhotoCreate, PhotoUpdate, TagResponse
 from src.repository.photos import (
@@ -88,6 +90,13 @@ class TestPhotos(unittest.IsolatedAsyncioTestCase):
     @patch('src.repository.photos.init_cloudinary')
     async def test_create_user_photo(self, mock_init_cloudinary):
         mock_init_cloudinary.return_value = None
+
+        cloudinary.config(
+            cloud_name=settings.cloudinary_name,
+            api_key=settings.cloudinary_api_key,
+            api_secret=settings.cloudinary_api_secret,
+            # secure=True
+        )
 
         photo_create_data = {
             "description": "Test Description",
