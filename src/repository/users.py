@@ -109,8 +109,7 @@ async def change_role(user_email: str, role: Roles, db: Session):
     :param user_email: str: Get the user by email
     :param role: Roles: Specify the role of the user
     :param db: Session: Pass the database session to the function
-    :return: A string
-    :doc-author: Trelent
+    :return: A string "OK" if the current user's email is in the who_liked field, and "NOT OK" if the email is not in this field
     """
     user = await get_user_by_email(user_email, db)
     if user.roles != Roles.admin:
@@ -131,8 +130,7 @@ async def put_a_like(photo_id: int, current_user, db: Session):
     :param photo_id: int: Get the photo from the database
     :param current_user: Get the email of the user who is logged in
     :param db: Session: Access the database
-    :return: &quot;ok&quot; if the user has not yet liked this photo, and &quot;not ok&quot; otherwise
-    :doc-author: Trelent
+    :return: A string "OK" if the current user's email is in the who_liked field, and "NOT OK" if the email is not in this field
     """
     photo = db.query(Photo).filter(Photo.id == photo_id).first()
     if current_user.email not in photo.who_liked:
@@ -155,8 +153,7 @@ async def dislike(photo_id: int, current_user, db: Session):
     :param photo_id: int: Get the photo from the database
     :param current_user: Check if the user who is trying to like a photo has already liked it
     :param db: Session: Access the database
-    :return: A string
-    :doc-author: Trelent
+    :return: A string "OK" if the current user's email is in the who_liked field, and "NOT OK" if the email is not in this field
     """
     photo = db.query(Photo).filter(Photo.id == photo_id).first()
     if current_user.email in photo.who_liked:
@@ -179,8 +176,7 @@ async def delete_like_admin_moder(user_email: str, photo_id: int, db: Session):
     :param user_email: str: Identify the user who is trying to like a photo
     :param photo_id: int: Get the photo from the database
     :param db: Session: Access the database
-    :return: &quot;ok&quot; if the user_email is in the who_liked string,
-    :doc-author: Trelent
+    :return: A string "OK" if the current user's email is in the who_liked field, and "NOT OK" if the email is not in this field
     """
     photo = db.query(Photo).filter(Photo.id == photo_id).first()
     if user_email not in photo.who_liked:
