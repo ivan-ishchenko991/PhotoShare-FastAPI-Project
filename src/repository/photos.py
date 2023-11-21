@@ -39,7 +39,6 @@ async def get_all_photos(skip: int, limit: int, db: Session) -> List[Photo]:
     :param limit: int: Limit the number of photos returned in a single request
     :param db: Session: Pass the database session to the function
     :return: A list of photoresponseall objects
-    :doc-author: Trelent
     """
     photos = (
         db.query(Photo)
@@ -79,7 +78,6 @@ async def get_top_photos(skip: int, limit: int, db: Session) -> List[Photo]:
     :param limit: int: Limit the number of photos returned
     :param db: Session: Pass in the database session
     :return: A list of photos with the username of the owner
-    :doc-author: Trelent
     """
     photos = (
         db.query(Photo)
