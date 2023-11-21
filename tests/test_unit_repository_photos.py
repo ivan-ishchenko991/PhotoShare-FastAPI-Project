@@ -3,7 +3,8 @@ from unittest.mock import MagicMock, Mock, patch
 
 import cloudinary
 from fastapi import UploadFile
-from sqlalchemy.orm import Session
+from sqlalchemy import desc
+from sqlalchemy.orm import Session, joinedload
 
 from src.conf.config import settings
 from src.database.models import Photo, User
@@ -44,8 +45,38 @@ class TestPhotos(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, photos)
 
     async def test_get_top_photos(self):
-        photos = [Photo(), Photo(), Photo()]
-        self.session.query().filter().all.return_value = photos
+        photos = [PhotoResponseAll(
+                id=1,
+                image_url="https://example.com/image.jpg",
+                qr_transform="https://example.com/qr_transform.jpg",
+                likes=10,
+                description="Photo description",
+                photo_owner="test owner",
+                created_at="2023-11-01T12:00:00",
+                updated_at="2023-11-01T12:00:00",
+                tags=[TagResponse(id=1, title="Tag 1", created_at="2023-11-01T12:00:00")]
+            ), PhotoResponseAll(
+                id=2,
+                image_url="https://example.com/image.jpg",
+                qr_transform="https://example.com/qr_transform.jpg",
+                likes=10,
+                description="Photo description",
+                photo_owner="test owner",
+                created_at="2023-11-01T12:00:00",
+                updated_at="2023-11-01T12:00:00",
+                tags=[TagResponse(id=1, title="Tag 1", created_at="2023-11-01T12:00:00")]
+            ), PhotoResponseAll(
+                id=3,
+                image_url="https://example.com/image.jpg",
+                qr_transform="https://example.com/qr_transform.jpg",
+                likes=10,
+                description="Photo description",
+                photo_owner="test owner",
+                created_at="2023-11-01T12:00:00",
+                updated_at="2023-11-01T12:00:00",
+                tags=[TagResponse(id=1, title="Tag 1", created_at="2023-11-01T12:00:00")]
+            )]
+        self.session.query().join().options(joinedload()).order_by(desc()).offset().limit().all.return_value = photos
         result = await get_top_photos(skip=0, limit=100, db=self.session)
         self.assertEqual(result, photos)
 
@@ -172,7 +203,7 @@ class TestPhotos(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.tags, ["testing"])
 
     async def test_delete_user_photo(self):
-        photo = Photo()
+        photo = Photo(image_url="example_url")
         self.session.query().filter().first.return_value = photo
         result = await delete_user_photo(photo_id=1, user_id=1, is_admin=True, db=self.session)
         self.assertEqual(result, photo)
