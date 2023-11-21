@@ -61,7 +61,7 @@ async def create_user_photo(
         raise HTTPException(status_code=400, detail="Too many tags provided")
 
     photo_data = PhotoCreate(description=description, tags=tags)
-    return repository_photos.create_user_photo(photo_data, image, current_user, db)
+    return await repository_photos.create_user_photo(photo_data, image, current_user, db)
 
 
 @router.post("/create_qr_code", response_model=PhotoResponse, status_code=status.HTTP_201_CREATED)
@@ -118,7 +118,7 @@ async def get_user_photos(
     else:
         user_id = current_user.id
 
-    photos = repository_photos.get_user_photos(user_id, skip, limit, db)
+    photos = await repository_photos.get_user_photos(user_id, skip, limit, db)
     return {"photos": photos}
 
 
@@ -199,7 +199,7 @@ async def update_user_photo(
     """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
-    photo = repository_photos.get_user_photo_by_id(photo_id, db)
+    photo = await repository_photos.get_user_photo_by_id(photo_id, db)
 
     if not photo:
         raise HTTPException(
@@ -213,7 +213,7 @@ async def update_user_photo(
     ):
         raise HTTPException(status_code=403, detail="Permission denied")
 
-    updated_photo = repository_photos.update_user_photo(photo, updated_photo, current_user, db)
+    updated_photo = await repository_photos.update_user_photo(photo, updated_photo, current_user, db)
     return updated_photo
 
 
