@@ -20,7 +20,7 @@ Cat Captures main
 
 
 Cat Captures database Connect
-=========================
+==============================
 .. automodule:: src.database.connect
   :members:
   :undoc-members:
@@ -28,7 +28,7 @@ Cat Captures database Connect
 
 
 Cat Captures repository Comments
-================================
+=================================
 .. automodule:: src.repository.comments
   :members:
   :undoc-members:

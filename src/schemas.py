@@ -57,7 +57,6 @@ class AdminUserPatch(BaseModel):
     email: Optional[EmailStr] = None
     username: Optional[constr(min_length=3, max_length=50)] = None
     password: Optional[SecretStr] = None
-    is_active: Optional[bool] = None
 
 
 class TagBase(BaseModel):

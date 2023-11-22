@@ -120,9 +120,9 @@ It also checks if the database is configured correctly and can be reached by Pho
 </dd></dl>
 
 </section>
-<section id="cat-captures-database-connect">
-<h1>Cat Captures database Connect<a class="headerlink" href="#cat-captures-database-connect" title="Link to this heading">¶</a></h1>
-<dl class="py function" id="module-src.database.connect">
+<section id="module-src.database.connect">
+<span id="cat-captures-database-connect"></span><h1>Cat Captures database Connect<a class="headerlink" href="#module-src.database.connect" title="Link to this heading">¶</a></h1>
+<dl class="py function">
 <dt class="sig sig-object py" id="src.database.connect.get_db">
 <span class="sig-prename descclassname"><span class="pre">src.database.connect.</span></span><span class="sig-name descname"><span class="pre">get_db</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#src.database.connect.get_db" title="Link to this definition">¶</a></dt>
 <dd><p>The get_db function is a context manager that returns the database session.
@@ -323,9 +323,6 @@ limit (int): The maximum number of photos to return.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of photoresponseall objects</p>
 </dd>
-<dt class="field-odd">Doc-author<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Trelent</p>
-</dd>
 </dl>
 </dd></dl>
 
@@ -366,9 +363,6 @@ limit (int): The maximum number of photos to return.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A list of photos with the username of the owner</p>
-</dd>
-<dt class="field-odd">Doc-author<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Trelent</p>
 </dd>
 </dl>
 </dd></dl>
@@ -659,10 +653,7 @@ It then checks if the user is an admin, and if not, changes their role according
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A string</p>
-</dd>
-<dt class="field-odd">Doc-author<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Trelent</p>
+<dd class="field-even"><p>A string “OK” if the current user’s email is in the who_liked field, and “NOT OK” if the email is not in this field</p>
 </dd>
 </dl>
 </dd></dl>
@@ -722,10 +713,7 @@ photo_id (int): The id of the photo that was liked by a user.</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>&amp;quot;ok&amp;quot; if the user_email is in the who_liked string,</p>
-</dd>
-<dt class="field-odd">Doc-author<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Trelent</p>
+<dd class="field-even"><p>A string “OK” if the current user’s email is in the who_liked field, and “NOT OK” if the email is not in this field</p>
 </dd>
 </dl>
 </dd></dl>
@@ -746,10 +734,7 @@ It returns &amp;quot;OK&amp;quot; if successful or &amp;quot;NOT OK&amp;quot; ot
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A string</p>
-</dd>
-<dt class="field-odd">Doc-author<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Trelent</p>
+<dd class="field-even"><p>A string “OK” if the current user’s email is in the who_liked field, and “NOT OK” if the email is not in this field</p>
 </dd>
 </dl>
 </dd></dl>
@@ -790,10 +775,7 @@ The function also adds the email address of the user who liked it to a list stor
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>&amp;quot;ok&amp;quot; if the user has not yet liked this photo, and &amp;quot;not ok&amp;quot; otherwise</p>
-</dd>
-<dt class="field-odd">Doc-author<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Trelent</p>
+<dd class="field-even"><p>A string “OK” if the current user’s email is in the who_liked field, and “NOT OK” if the email is not in this field</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1511,9 +1493,9 @@ during the update.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.routes.users.patch_user_profile">
-<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.routes.users.</span></span><span class="sig-name descname"><span class="pre">patch_user_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AdminUserPatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UserDb</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Depends(get_current_user)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Depends(get_db)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Depends(OAuth2PasswordBearer)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.routes.users.patch_user_profile" title="Link to this definition">¶</a></dt>
-<dd><p>Partially update the profile of a user by their ID, with admin privileges.</p>
-<p>Parameters: - user_id (int): ID of the user to be patched. - user_update (AdminUserPatch): Partial user data
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.routes.users.</span></span><span class="sig-name descname"><span class="pre">patch_user_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">AdminUserPatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UserDb</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Depends(get_current_user)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Depends(get_db)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Depends(OAuth2PasswordBearer)</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.routes.users.patch_user_profile" title="Link to this definition">¶</a></dt>
+<dd><p>Partially update the profile of a user by their email, with admin privileges.</p>
+<p>Parameters: - email (str) - user_update (AdminUserPatch): Partial user data
 to be updated, including email, username, password, and is_active status. - current_user (UserDb): The
 authenticated user obtained from the token with admin privileges. - db (Session): SQLAlchemy database session
 for updating user profile in the database. - token (str): OAuth2 token for user authentication.</p>
@@ -1918,7 +1900,7 @@ function. If there is no matching photo found, None is returned to indicate that
 <li><a class="reference internal" href="#main.root"><code class="docutils literal notranslate"><span class="pre">root()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#cat-captures-database-connect">Cat Captures database Connect</a><ul>
+<li><a class="reference internal" href="#module-src.database.connect">Cat Captures database Connect</a><ul>
 <li><a class="reference internal" href="#src.database.connect.get_db"><code class="docutils literal notranslate"><span class="pre">get_db()</span></code></a></li>
 </ul>
 </li>

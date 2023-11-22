@@ -205,7 +205,7 @@ async def edit_user_profile(
     """
     if await auth_service.is_token_blacklisted(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token is blacklisted")
-    user = await repository_users.get_user_by_id(current_user.id, db)
+    user = await repository_users.get_user_by_email(current_user.email, db)
 
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -236,16 +236,16 @@ async def edit_user_profile(
 
 @router.patch("/patch/{user_id}", response_model=Dict[str, str])
 async def patch_user_profile(
-        user_id: int,
+        email: str,
         user_update: AdminUserPatch,
         current_user: UserDb = Depends(auth_service.get_current_user),
         db: Session = Depends(get_db),
         token: str = Depends(auth_service.oauth2_scheme),
 ):
     """
-        Partially update the profile of a user by their ID, with admin privileges.
+        Partially update the profile of a user by their email, with admin privileges.
 
-        Parameters: - user_id (int): ID of the user to be patched. - user_update (AdminUserPatch): Partial user data
+        Parameters: - email (str) - user_update (AdminUserPatch): Partial user data
         to be updated, including email, username, password, and is_active status. - current_user (UserDb): The
         authenticated user obtained from the token with admin privileges. - db (Session): SQLAlchemy database session
         for updating user profile in the database. - token (str): OAuth2 token for user authentication.
@@ -261,7 +261,7 @@ async def patch_user_profile(
     if not current_user or "Administrator" not in current_user.roles.split(","):
         raise HTTPException(status_code=403, detail="Permission denied")
 
-    user = await repository_users.get_user_by_id(user_id, db)
+    user = await repository_users.get_user_by_email(email, db)
 
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -282,8 +282,6 @@ async def patch_user_profile(
         password = user_update.password.get_secret_value()
         user.password = auth_service.get_password_hash(password)
 
-    if user_update.is_active is not None:
-        user.is_active = user_update.is_active
 
     db.commit()
     db.refresh(user)
