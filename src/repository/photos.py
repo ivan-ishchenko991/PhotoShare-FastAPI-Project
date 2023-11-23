@@ -66,7 +66,7 @@ async def get_top_photos(skip: int, limit: int, db: Session) -> List[Photo]:
         .limit(limit)
         .all()
     )
-
+    print(photos)
     photos_with_username = [
         PhotoResponseAll(
             id=photo.id,
@@ -237,7 +237,7 @@ async def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_us
     if updated_photo.tags:
         tag_objects = []
         for tag_name in updated_photo.tags:
-            tag = db.query(Tag).filter(Tag.title == tag_name, ).first()
+            tag = db.query(Tag).filter(Tag.title == tag_name).first()
             if not tag:
                 tag = Tag(title=tag_name, user_id=current_user.id)
                 db.add(tag)

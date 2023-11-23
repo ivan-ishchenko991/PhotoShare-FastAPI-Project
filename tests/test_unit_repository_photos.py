@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, patch, AsyncMock
 
 import cloudinary
 from fastapi import UploadFile
@@ -7,7 +7,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session, joinedload
 
 from src.conf.config import settings
-from src.database.models import Photo, User
+from src.database.models import Photo, User, Tag
 from src.schemas import PhotoResponse, PhotoResponseAll, UserResponse, PhotoCreate, PhotoUpdate, TagResponse
 from src.repository.photos import (
     get_all_photos,
@@ -37,15 +37,7 @@ class TestPhotos(unittest.IsolatedAsyncioTestCase):
         ))
         self.image = Mock(spec=UploadFile)
         self.image.file = Mock()
-
-    async def test_get_all_photos(self):
-        photos = [PhotoResponseAll(), PhotoResponseAll(), PhotoResponseAll()]
-        self.session.query().join().options().offset().limit().all.return_value = photos
-        result = await get_all_photos(skip=0, limit=100, db=self.session)
-        self.assertEqual(result, photos)
-
-    async def test_get_top_photos(self):
-        photos = [PhotoResponseAll(
+        self.photo_response_all = [PhotoResponseAll(
                 id=1,
                 image_url="https://example.com/image.jpg",
                 qr_transform="https://example.com/qr_transform.jpg",
@@ -76,7 +68,17 @@ class TestPhotos(unittest.IsolatedAsyncioTestCase):
                 updated_at="2023-11-01T12:00:00",
                 tags=[TagResponse(id=1, title="Tag 1", created_at="2023-11-01T12:00:00")]
             )]
-        self.session.query().join().options(joinedload()).order_by(desc()).offset().limit().all.return_value = photos
+
+    async def test_get_all_photos(self):
+        photos = self.photo_response_all
+
+        self.session.query(Photo).join(User).options(joinedload(Photo.user)).offset(0).limit(100).all.return_value = photos
+        result = await get_all_photos(skip=0, limit=100, db=self.session)
+        self.assertEqual(result, photos)
+
+    async def test_get_top_photos(self):
+        photos = self.photo_response_all
+        self.session.query().join(User).options(joinedload(Photo.user)).order_by(desc(Photo.likes)).offset().limit().all.return_value = photos
         result = await get_top_photos(skip=0, limit=100, db=self.session)
         self.assertEqual(result, photos)
 
@@ -118,45 +120,75 @@ class TestPhotos(unittest.IsolatedAsyncioTestCase):
         result = await search_photos(description="string", tag="string", user="string", is_admin=True, db=self.session)
         self.assertIsNone(result)
 
+    @patch('src.repository.photos.cloudinary.uploader.upload')
+    @patch('src.repository.photos.cloudinary.CloudinaryImage')
     @patch('src.repository.photos.init_cloudinary')
-    async def test_create_user_photo(self, mock_init_cloudinary):
-        mock_init_cloudinary.return_value = None
+    async def test_create_user_photo(self, mock_init_cloudinary, mock_cloudinary_image, mock_cloudinary_uploader_upload):
+        # Mocking the necessary data
+        mock_photo_create = self.photo
+        mock_upload_file = self.image
+        mock_current_user = self.user
+        mock_db_session = self.session
 
-        cloudinary.config(
-            cloud_name=settings.cloudinary_name,
-            api_key=settings.cloudinary_api_key,
-            api_secret=settings.cloudinary_api_secret,
-            # secure=True
+        # Mocking the current timestamp
+        mock_timestamp = 1637869200.0  # Replace this with your desired timestamp
+
+        # Mocking Cloudinary behavior
+        mock_init_cloudinary.return_value = None
+        mock_cloudinary_image.return_value.build_url.return_value = "https://example.com/image.jpg"
+        mock_cloudinary_uploader_upload.return_value.get.return_value = "test_public_id"
+
+        # Mocking the database objects
+        mock_tag = Tag(id=1, title="Tag 1", created_at="2023-11-01T12:00:00")
+        mock_db_photo = MagicMock()
+        mock_db_photo = Photo(
+            id=1,
+            image_url="https://example.com/image.jpg",
+            qr_transform="https://example.com/qr_transform.jpg",
+            likes=10,
+            description="Photo description",
+            created_at="2023-11-01T12:00:00",
+            updated_at="2023-11-01T12:00:00",
+        )
+        mock_db_photo.tags = [mock_tag]
+
+        photo_resp = PhotoResponse(
+            id=1,
+            image_url="https://example.com/image.jpg",
+            qr_transform="https://example.com/qr_transform.jpg",
+            likes=10,
+            description="Photo description",
+            created_at="2023-11-01T12:00:00",
+            updated_at="2023-11-01T12:00:00",
+            tags=[Tag(id=1, title="Tag 1", created_at="2023-11-01T12:00:00")]
         )
 
-        photo_create_data = {
-            "description": "Test Description",
-            "tags": ["tag1", "tag2"],
-        }
-        mock_photo_create = MagicMock()
-        mock_photo_create.dict.return_value = photo_create_data
+        mock_db_session.query().filter().first.return_value = None
+        mock_db_session.commit.return_value = None
+        mock_db_session.refresh.return_value = None
+        mock_db_session.query().filter().first.return_value = mock_tag
 
-        mock_upload_file = MagicMock()
-        mock_upload_file.file.read.return_value = b"Mocked image content"
-
-        mock_user = MagicMock()
-        mock_user.email = "test@example.com"
-        mock_user.id = 1
-
-        mock_session = MagicMock()
-        mock_db_photo = MagicMock()
-        mock_db_photo.__dict__ = {
+        # Mocking the PhotoResponse object
+        expected_photo_response_data = {
             "id": 1,
             "image_url": "https://example.com/image.jpg",
+            # ... populate other necessary fields here
+            "tags": [TagResponse(id=1, title="Tag 1", created_at="2023-11-01T12:00:00")]
         }
-        mock_session.query.return_value.filter.return_value.first.return_value = None
-        mock_session.commit.return_value = None
-        mock_session.refresh.return_value = None
 
-        result = await create_user_photo(mock_photo_create, mock_upload_file, mock_user, mock_session)
+        with patch('src.repository.photos.datetime') as mock_datetime:
+            mock_datetime.now.return_value.timestamp.return_value = mock_timestamp
 
-        self.assertIsNotNone(result)
-        self.assertEqual(result.id, mock_db_photo.__dict__["id"])
+            # Call the function to be tested
+            result = await create_user_photo(mock_photo_create, mock_upload_file, mock_current_user, mock_db_session)
+
+        # Assertions
+        self.assertIsInstance(result, photo_resp)
+        # Add more assertions based on your expected behavior and the result obtained
+        # Make assertions to check if the expected_photo_response_data matches the result obtained
+        self.assertEqual(result.id, expected_photo_response_data['id'])
+        self.assertEqual(result.image_url, expected_photo_response_data['image_url'])
+        # ... add assertions for other fields as well
 
     async def test_get_user_photo_by_id(self):
         photo = PhotoResponse(
@@ -199,14 +231,41 @@ class TestPhotos(unittest.IsolatedAsyncioTestCase):
             current_user=self.user,
             db=self.session
         )
-        self.assertEqual(result.description, "testing update")
-        self.assertEqual(result.tags, ["testing"])
+        self.assertEqual(result.description, "Photo updated description")
+        self.assertEqual(result.tags, ["Updated tag"])
 
-    async def test_delete_user_photo(self):
-        photo = Photo(image_url="example_url")
-        self.session.query().filter().first.return_value = photo
-        result = await delete_user_photo(photo_id=1, user_id=1, is_admin=True, db=self.session)
-        self.assertEqual(result, photo)
+    @patch('src.repository.photos.get_public_id_from_image_url')
+    @patch('src.repository.photos.init_cloudinary')
+    async def test_delete_user_photo(self, mock_init_cloudinary, mock_get_public_id_from_image_url):
+        # Mock data
+        photo_id = 1
+        user_id = 1
+        is_admin = False
+        db_session = MagicMock()
+
+        mock_photo = MagicMock()
+        mock_photo.user_id = user_id
+
+        mock_db_query = MagicMock()
+        mock_db_query.filter().first.return_value = mock_photo
+        db_session.query.return_value = mock_db_query
+
+        mock_get_public_id_from_image_url.return_value = "test_public_id"
+
+        async def async_destroy(*args, **kwargs):
+            pass
+
+        mock_destroy = AsyncMock(side_effect=async_destroy)
+
+        with patch('src.repository.photos.destroy', mock_destroy):
+            result = await delete_user_photo(photo_id, user_id, is_admin, db_session)
+
+        mock_db_query.filter.assert_called_once_with(Photo.id == photo_id)
+        mock_destroy.assert_called_once_with("PhotoshareApp_qrcode/test_public_id_qr")
+        db_session.delete.assert_called_once_with(mock_photo)
+        db_session.commit.assert_called_once()
+
+        self.assertEqual(result, mock_photo)
 
     async def test_delete_user_photo_not_found(self):
         photo = Photo()
