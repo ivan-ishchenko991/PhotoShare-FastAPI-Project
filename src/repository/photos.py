@@ -66,7 +66,7 @@ async def get_top_photos(skip: int, limit: int, db: Session) -> List[Photo]:
         .limit(limit)
         .all()
     )
-    print(photos)
+
     photos_with_username = [
         PhotoResponseAll(
             id=photo.id,
