@@ -107,7 +107,7 @@ async def get_top_photos(skip: int, limit: int, db: Session) -> List[Photo]:
     return photos_with_username
 
 
-def get_public_id_from_image_url(image_url: str) -> str:
+async def get_public_id_from_image_url(image_url: str) -> str:
     """
     The get_public_id_from_image_url function takes a Cloudinary image URL as input and returns the public ID of that
     image. The public ID is the unique identifier for an image in your Cloudinary account. It is used to reference
@@ -122,7 +122,7 @@ def get_public_id_from_image_url(image_url: str) -> str:
     return public_id
 
 
-def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User, db: Session) -> PhotoResponse:
+async def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User, db: Session) -> PhotoResponse:
     """
     The create_user_photo function creates a new photo in the database. Args: photo (PhotoCreate): The PhotoCreate
     object containing the data to create a new Photo. image (UploadFile): The UploadFile object containing the image
@@ -176,7 +176,7 @@ def create_user_photo(photo: PhotoCreate, image: UploadFile, current_user: User,
     return PhotoResponse(**photo_response_data)
 
 
-def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[PhotoResponse]:
+async def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[PhotoResponse]:
     """
     The get_user_photos function returns a list of PhotoResponse objects. The function takes in the following
     parameters: user_id (int): The id of the user whose photos we want to retrieve. If None, all photos are returned.
@@ -210,7 +210,7 @@ def get_user_photos(user_id: int, skip: int, limit: int, db: Session) -> list[Ph
     ) for photo in photos]
 
 
-def get_user_photo_by_id(photo_id: int, db: Session, current_user: User) -> PhotoResponse:
+async def get_user_photo_by_id(photo_id: int, db: Session, current_user: User) -> PhotoResponse:
     """
    The get_user_photo_by_id function returns a PhotoResponse object for the photo with the specified ID.
 
@@ -240,21 +240,7 @@ def get_user_photo_by_id(photo_id: int, db: Session, current_user: User) -> Phot
     )
 
 
-def get_user_photo_by_id(photo_id: int, db: Session) -> Photo:
-    """
-    The get_user_photo_by_id function takes in a photo_id and db Session object,
-    and returns the Photo object associated with that id.
-
-
-    :param photo_id: int: Specify the id of the photo that will be returned
-    :param db: Session: Pass in the database session
-    :return: A photo object
-    """
-    photo = db.query(Photo).filter(Photo.id == photo_id).first()
-    return photo
-
-
-def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: User, db: Session) -> PhotoResponse:
+async def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: User, db: Session) -> PhotoResponse:
     """
     The update_user_photo function updates a photo in the database. Args: photo (Photo): The Photo object to be
     updated. updated_photo (PhotoUpdate): The new data for the Photo object. current_user (User): The user who is
@@ -273,7 +259,7 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
     if updated_photo.tags:
         tag_objects = []
         for tag_name in updated_photo.tags:
-            tag = db.query(Tag).filter(Tag.title == tag_name, ).first()
+            tag = db.query(Tag).filter(Tag.title == tag_name).first()
             if not tag:
                 tag = Tag(title=tag_name, user_id=current_user.id)
                 db.add(tag)
@@ -294,7 +280,7 @@ def update_user_photo(photo: Photo, updated_photo: PhotoUpdate, current_user: Us
     )
 
 
-async def search_photos(description: str, tag: str, user: str, is_admin: bool, db: Session):
+async def search_photos(description: str, tag: str, user: str, is_admin: bool, db: Session) -> list[Photo]:
     """
     The search_photos function searches for photos in the database.
         It takes a description, tag, and user as arguments. If all three are provided, it will search for photos with that

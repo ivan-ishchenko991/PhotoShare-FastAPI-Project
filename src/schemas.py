@@ -72,6 +72,7 @@ class TagModel(TagBase):
 
 class TagResponse(TagBase):
     id: int
+    title: str
     created_at: datetime
 
     class Config:
