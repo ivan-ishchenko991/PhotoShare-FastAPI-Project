@@ -22,7 +22,7 @@ PhotoShare is a RestAPI for web application that allows users to create an accou
 - [Live PhotoShare](https://cat-captures-pycoders.koyeb.app/docs)
 
 ## Documentation 📗
- - [Documentation link](https://cat-captures-pycoders.koyeb.app/)
+ - [Documentation link](https://ivan-ishchenko991.github.io/PhotoShare-FastAPI-Project/)
 
 
 ## Installation 💻
@@ -35,7 +35,7 @@ To run this project, follow these steps:
 
 
 ## Usage 💠
-This project exposes 20+ endpoints through a REST API. To access these APIs, use any API client, such as Postman or cURL. The API documentation can be found at [documentation](https://cat-captures-pycoders.koyeb.app/).
+This project exposes 20+ endpoints through a REST API. To access these APIs, use any API client, such as Postman or cURL. The API documentation can be found at [documentation](https://ivan-ishchenko991.github.io/PhotoShare-FastAPI-Project/).
 
 
 ## Cat Captures Team:
